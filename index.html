@@ -472,75 +472,79 @@
       align-items: center;
       justify-content: center;
       overflow: visible;
-      transform: translateY(1px);
+      transform: translateY(0);
       position: relative;
     }
 
     .header-signature::after {
       content: "";
       position: absolute;
-      left: 10px;
-      right: 8px;
-      bottom: 5px;
-      height: 2px;
+      left: 18px;
+      right: 14px;
+      bottom: 2px;
+      height: 1.5px;
       border-radius: 999px;
       background:
-        linear-gradient(90deg, transparent 0%, rgba(255, 209, 102, 0.15) 8%, var(--accent-3) 34%, var(--accent-2) 72%, transparent 100%);
+        linear-gradient(90deg, transparent 0%, rgba(255, 246, 229, 0.28) 10%, #ffd166 42%, rgba(255, 106, 0, 0.82) 76%, transparent 100%);
       box-shadow:
-        0 0 10px rgba(255, 179, 71, 0.42),
-        0 0 22px rgba(255, 106, 0, 0.18);
+        0 0 8px rgba(255, 179, 71, 0.34),
+        0 0 18px rgba(255, 106, 0, 0.12);
       transform-origin: left;
       transform: scaleX(0);
       opacity: 0;
-      animation: header-underline-reveal 950ms cubic-bezier(.2,.8,.2,1) 2.35s forwards;
+      animation: header-underline-reveal 820ms cubic-bezier(.2,.8,.2,1) 1.85s forwards;
     }
 
     .header-signature::before {
       content: "";
       position: absolute;
-      left: 16px;
-      bottom: 3px;
-      width: 34px;
-      height: 6px;
+      left: 24px;
+      bottom: 0;
+      width: 42px;
+      height: 7px;
       border-radius: 999px;
-      background: radial-gradient(circle, rgba(255, 209, 102, 0.42), transparent 70%);
-      filter: blur(4px);
+      background: radial-gradient(circle, rgba(255, 246, 229, 0.34), transparent 70%);
+      filter: blur(5px);
       opacity: 0;
-      animation: header-underline-glow 1.15s ease 2.55s forwards;
+      animation: header-underline-glow 1s ease 2.04s forwards;
     }
 
     .header-signature-svg {
-      width: 208px;
-      height: 44px;
+      width: 224px;
+      height: 46px;
       display: block;
       overflow: visible;
     }
 
     .header-signature-stroke {
-      font-family: "Segoe Script", "Brush Script MT", "Snell Roundhand", "Apple Chancery", cursive;
-      font-size: 70px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-size: 64px;
       font-weight: 700;
-      letter-spacing: -2.8px;
+      letter-spacing: -2.1px;
       fill: transparent;
-      stroke: var(--accent-3);
-      stroke-width: 2.1;
+      stroke: rgba(255, 225, 166, 0.94);
+      stroke-width: 1.35;
       stroke-linecap: round;
       stroke-linejoin: round;
-      stroke-dasharray: 1450;
-      stroke-dashoffset: 1450;
-      filter: drop-shadow(0 0 8px rgba(255, 209, 102, 0.34));
-      animation: header-signature-write 2.45s cubic-bezier(.42,0,.18,1) 260ms forwards;
+      stroke-dasharray: 1320;
+      stroke-dashoffset: 1320;
+      filter:
+        drop-shadow(0 0 6px rgba(255, 209, 102, 0.24))
+        drop-shadow(0 6px 16px rgba(255, 106, 0, 0.10));
+      animation: header-signature-write 1.95s cubic-bezier(.38,0,.16,1) 220ms forwards;
     }
 
     .header-signature-fill {
-      font-family: "Segoe Script", "Brush Script MT", "Snell Roundhand", "Apple Chancery", cursive;
-      font-size: 70px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-style: italic;
+      font-size: 64px;
       font-weight: 700;
-      letter-spacing: -2.8px;
+      letter-spacing: -2.1px;
       fill: url(#headerSignatureGradient);
       opacity: 0;
-      filter: drop-shadow(0 7px 18px rgba(255, 106, 0, 0.16));
-      animation: header-signature-fill 650ms ease 2.2s forwards;
+      filter: drop-shadow(0 6px 16px rgba(255, 106, 0, 0.13));
+      animation: header-signature-fill 520ms ease 1.72s forwards;
     }
 
     @keyframes header-logo-pop {
@@ -562,10 +566,10 @@
 
     @keyframes header-signature-write {
       0% {
-        stroke-dashoffset: 1450;
-        opacity: 0.2;
+        stroke-dashoffset: 1320;
+        opacity: 0.14;
       }
-      12% {
+      14% {
         opacity: 1;
       }
       100% {
@@ -1524,8 +1528,8 @@
       }
 
       .header-signature-svg {
-        width: 152px;
-        height: 34px;
+        width: 164px;
+        height: 35px;
       }
 
       .header-signature::after {
@@ -1644,13 +1648,13 @@
           <svg class="header-signature-svg" viewBox="0 0 660 132" role="img" aria-label="Denis Komarov signature">
             <defs>
               <linearGradient id="headerSignatureGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stop-color="#fff6e5" />
-                <stop offset="48%" stop-color="#ffd166" />
-                <stop offset="100%" stop-color="#ff8a1c" />
+                <stop offset="0%" stop-color="#fff7e8" />
+                <stop offset="46%" stop-color="#ffd166" />
+                <stop offset="100%" stop-color="#ff9a24" />
               </linearGradient>
             </defs>
-            <text class="header-signature-stroke" x="8" y="78">Denis Komarov</text>
-            <text class="header-signature-fill" x="8" y="78">Denis Komarov</text>
+            <text class="header-signature-stroke" x="10" y="82" textLength="595" lengthAdjust="spacingAndGlyphs">Denis Komarov</text>
+            <text class="header-signature-fill" x="10" y="82" textLength="595" lengthAdjust="spacingAndGlyphs">Denis Komarov</text>
           </svg>
         </span>
       </a>

@@ -1179,6 +1179,86 @@
       line-height: 1.7;
     }
 
+
+    .education-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 26px;
+    }
+
+    .education-card {
+      position: relative;
+      padding: 22px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,184,77,0.11);
+      overflow: hidden;
+    }
+
+    .education-card::before {
+      content: "";
+      position: absolute;
+      inset: auto 18px 18px auto;
+      width: 72px;
+      height: 72px;
+      border-radius: 24px;
+      background: radial-gradient(circle, rgba(255,106,0,0.20), transparent 68%);
+      filter: blur(6px);
+      pointer-events: none;
+    }
+
+    .education-label {
+      display: inline-flex;
+      margin-bottom: 14px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: #ffe0aa;
+      background: rgba(255,179,71,0.09);
+      border: 1px solid rgba(255,179,71,0.16);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .education-card h3 {
+      margin-bottom: 9px;
+      font-size: 1.12rem;
+      letter-spacing: -0.035em;
+    }
+
+    .education-card p {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.62;
+    }
+
+    .direction-card {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 18px;
+      align-items: center;
+      padding: 24px;
+      border-radius: 26px;
+      background:
+        linear-gradient(135deg, rgba(255,179,71,0.12), rgba(255,106,0,0.07)),
+        rgba(255,255,255,0.052);
+      border: 1px solid rgba(255,184,77,0.14);
+    }
+
+    .direction-card h3 {
+      font-size: 1.35rem;
+      letter-spacing: -0.045em;
+    }
+
+    .direction-card p {
+      color: var(--muted);
+      line-height: 1.68;
+    }
+
+
     .metric-strip {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1347,32 +1427,63 @@
     }
 
     .project-card {
-      min-height: 280px;
+      min-height: 245px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      gap: 22px;
+      isolation: isolate;
+    }
+
+    .project-card::after {
+      content: "";
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      width: 82px;
+      height: 82px;
+      z-index: -1;
+      border-radius: 28px;
+      background: radial-gradient(circle, rgba(255, 179, 71, 0.16), transparent 68%);
+      filter: blur(4px);
+      opacity: 0.85;
     }
 
     .project-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 18px;
-      margin-bottom: 22px;
+      display: block;
+      position: relative;
+      padding-right: 66px;
+      margin-bottom: 0;
     }
 
     .project-number {
-      color: rgba(255,184,77,0.25);
-      font-size: 3rem;
+      position: absolute;
+      right: 0;
+      top: -4px;
+      color: rgba(255,184,77,0.20);
+      font-size: clamp(2.2rem, 4vw, 3rem);
       font-weight: 950;
       line-height: 1;
       letter-spacing: -0.09em;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .project-card h3 {
+      max-width: 92%;
+    }
+
+    .project-card p {
+      max-width: 95%;
+      font-size: 0.95rem;
+      line-height: 1.62;
     }
 
     .project-tags {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 18px;
+      margin-top: 0;
     }
 
     .mini-tag {
@@ -1383,6 +1494,39 @@
       border: 1px solid rgba(255,179,71,0.18);
       font-size: 0.78rem;
       font-weight: 850;
+    }
+
+
+    .project-card {
+      min-height: 235px;
+      gap: 20px;
+    }
+
+    .project-top {
+      display: block;
+      position: relative;
+      padding-right: 62px;
+      margin-bottom: 0;
+    }
+
+    .project-number {
+      position: absolute;
+      right: 0;
+      top: -4px;
+      color: rgba(255,184,77,0.20);
+      font-size: clamp(2.2rem, 4vw, 3rem);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .project-card p {
+      max-width: 96%;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    .project-tags {
+      margin-top: 0;
     }
 
     .lab-card {
@@ -1513,7 +1657,87 @@
       }
 
       .grid-3,
-      .metric-strip {
+  
+    .education-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 26px;
+    }
+
+    .education-card {
+      position: relative;
+      padding: 22px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.055);
+      border: 1px solid rgba(255,184,77,0.11);
+      overflow: hidden;
+    }
+
+    .education-card::before {
+      content: "";
+      position: absolute;
+      inset: auto 18px 18px auto;
+      width: 72px;
+      height: 72px;
+      border-radius: 24px;
+      background: radial-gradient(circle, rgba(255,106,0,0.20), transparent 68%);
+      filter: blur(6px);
+      pointer-events: none;
+    }
+
+    .education-label {
+      display: inline-flex;
+      margin-bottom: 14px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      color: #ffe0aa;
+      background: rgba(255,179,71,0.09);
+      border: 1px solid rgba(255,179,71,0.16);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .education-card h3 {
+      margin-bottom: 9px;
+      font-size: 1.12rem;
+      letter-spacing: -0.035em;
+    }
+
+    .education-card p {
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.62;
+    }
+
+    .direction-card {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 18px;
+      align-items: center;
+      padding: 24px;
+      border-radius: 26px;
+      background:
+        linear-gradient(135deg, rgba(255,179,71,0.12), rgba(255,106,0,0.07)),
+        rgba(255,255,255,0.052);
+      border: 1px solid rgba(255,184,77,0.14);
+    }
+
+    .direction-card h3 {
+      font-size: 1.35rem;
+      letter-spacing: -0.045em;
+    }
+
+    .direction-card p {
+      color: var(--muted);
+      line-height: 1.68;
+    }
+
+
+    .metric-strip {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
@@ -1610,8 +1834,22 @@
       .browser-bottom,
       .grid-3,
       .metric-strip,
+      .education-grid,
+      .direction-card,
       .flight-meta {
         grid-template-columns: 1fr;
+      }
+
+      .project-top {
+        padding-right: 52px;
+      }
+
+      .project-card {
+        min-height: 220px;
+      }
+
+      .project-card p {
+        max-width: 100%;
       }
 
       .floating-chip {
@@ -1688,8 +1926,8 @@
           <div class="eyebrow"><span class="status-dot"></span> Available for web projects · Portfolio-ready delivery</div>
           <h1>I build <span class="gradient-text">sharp websites</span> with clean code and product-grade polish.</h1>
           <p class="hero-text">
-            I’m Denis Komarov, a web developer focused on fast, responsive, visually strong websites.
-            My work combines interface design, front-end structure, technical discipline, and a systems mindset shaped by aviation simulation and VATSIM flying.
+            I’m Denis Komarov, a Computer Science student and web developer focused on websites, landing pages, responsive layouts, UI structure, bots, scripts, and small interactive projects.
+            My work combines front-end structure, technical discipline, and a systems mindset shaped by aviation simulation and VATSIM flying.
           </p>
 
           <div class="hero-actions">
@@ -1779,45 +2017,72 @@
             <h2>Developer with a systems-first mindset.</h2>
           </div>
           <p class="section-desc">
-            I treat websites as products: clear message, stable structure, fast interaction, and a design that does not collapse under real content.
+            I build websites with clear structure, stable layout, and a practical developer mindset.
           </p>
         </div>
 
         <div class="about-layout">
           <div class="profile-card reveal">
             <div class="avatar">DK</div>
-            <h3>Web developer, interface builder, aviation simulation enthusiast.</h3>
+            <h3>Computer Science student, web developer, and future cybersecurity specialist.</h3>
             <p>
-              I focus on practical web development: landing pages, portfolio websites, responsive interfaces, clean layouts, and maintainable front-end structure.
+              I work with websites, landing pages, responsive layouts, UI structure, simple games, bots, scripts, and practical programming projects.
             </p>
             <div class="tags">
-              <span class="tag">Frontend</span>
-              <span class="tag">Web Design</span>
-              <span class="tag">Responsive UI</span>
-              <span class="tag">Clean Code</span>
+              <span class="tag">Computer Science</span>
+              <span class="tag">Web Development</span>
+              <span class="tag">Bots & Scripts</span>
+              <span class="tag">AppSec Direction</span>
               <span class="tag">VATSIM</span>
-              <span class="tag">IFR Procedures</span>
+              <span class="tag">IFR Mindset</span>
             </div>
           </div>
 
           <div class="bio-card reveal">
             <p>
-              I develop websites with a strong focus on structure, usability, and visual quality. My goal is not just to place blocks on a page, but to build a clean digital presentation that explains who you are, what you offer, and why it matters.
+              I build practical web and software projects: websites, landing pages, responsive interfaces, simple games, chatbots, automation scripts, and UI concepts. I prefer clean structure, readable code, and solutions that can be maintained after the first version is finished.
             </p>
             <p>
-              Outside of programming, I am deeply interested in aviation. I use flight simulators, practice virtual flying, and have solid aviation knowledge for a person who operates in simulator environments and on VATSIM. I am interested in IFR procedures, route planning, navigation, approach logic, radio phraseology, and the discipline behind pilot-controller communication.
+              My academic path is focused on Computer Science, while my long-term direction is cybersecurity: AppSec, DevOps, DevSecOps, compliance, and potentially cloud security. I am building this path through programming fundamentals, web development, GitHub workflow, and secure-development thinking.
             </p>
             <p>
-              That aviation background influences how I work as a developer: checklists, precision, procedure, and attention to details. A website, like a flight, should not depend on guesswork. It should be planned, verified, and executed cleanly.
+              Outside of programming, I am deeply interested in aviation simulation and VATSIM. It trained my procedural thinking: checklists, route logic, communication discipline, and attention to small details. I try to bring the same precision into development.
             </p>
           </div>
         </div>
 
-        <div class="metric-strip reveal" aria-label="Key metrics">
-          <div class="metric"><strong data-count="100">0</strong><span>Responsive-first mindset</span></div>
-          <div class="metric"><strong data-count="24">0</strong><span>Pixel-level UI checks</span></div>
-          <div class="metric"><strong data-count="3">0</strong><span>Core focus areas</span></div>
-          <div class="metric"><strong data-count="1">0</strong><span>Clear product direction</span></div>
+        <div class="education-grid reveal" aria-label="Education and direction">
+          <article class="education-card">
+            <span class="education-label">Foundation</span>
+            <h3>Moscow School 1955</h3>
+            <p>Basic Computer Science and Python fundamentals.</p>
+          </article>
+
+          <article class="education-card">
+            <span class="education-label">Development</span>
+            <h3>I.S.I.S. Antonio Serra</h3>
+            <p>Deeper work with Java, JavaScript, C, and practical programming logic.</p>
+          </article>
+
+          <article class="education-card">
+            <span class="education-label">University</span>
+            <h3>UNISA Salerno · L-31</h3>
+            <p>Computer Science studies, development tools, and broader software foundations.</p>
+          </article>
+
+          <article class="education-card">
+            <span class="education-label">Extra learning</span>
+            <h3>Google & university courses</h3>
+            <p>Additional educational courses from Google and university-related programs.</p>
+          </article>
+
+          <article class="direction-card">
+            <div>
+              <span class="education-label">Next direction</span>
+              <h3>Cybersecurity path</h3>
+            </div>
+            <p>I plan to move toward cybersecurity with interest in AppSec, DevOps, DevSecOps, compliance, and possibly cloud security.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -1844,20 +2109,20 @@
         <div class="grid-3">
           <article class="card reveal">
             <div class="icon">🚀</div>
-            <h3>Personal portfolio</h3>
-            <p>A strong one-page website with a polished hero, biography, services, selected work, and contact section.</p>
+            <h3>Websites & landing pages</h3>
+            <p>Personal portfolios, landing pages, responsive layouts, and clean UI structure.</p>
           </article>
 
           <article class="card reveal">
-            <div class="icon">🧩</div>
-            <h3>Landing page</h3>
-            <p>A focused page for a service, project, event, or product with clear messaging, CTA blocks, and visual hierarchy.</p>
+            <div class="icon">🤖</div>
+            <h3>Bots & scripts</h3>
+            <p>Simple automation scripts, Telegram/Discord bots, and game-like bot logic.</p>
           </article>
 
           <article class="card reveal">
-            <div class="icon">🛠️</div>
-            <h3>Website refinement</h3>
-            <p>Layout fixes, responsive improvements, cleaner sections, better spacing, stronger visual rhythm, and code cleanup.</p>
+            <div class="icon">🎮</div>
+            <h3>Small games & prototypes</h3>
+            <p>Simple games, interface concepts, and programming projects for practice and learning.</p>
           </article>
         </div>
       </div>
@@ -1879,13 +2144,16 @@
           <div class="card reveal">
             <div class="icon">💻</div>
             <h3>Core stack</h3>
-            <p>HTML, CSS, JavaScript, responsive layouts, UI components, page structure, navigation logic, and visual adaptation for desktop and mobile.</p>
+            <p>PHP, HTML, CSS, JavaScript, Java, C, C++, Python, GitHub, and basic experience with Kotlin, Ruby, and Swift.</p>
             <div class="tags">
-              <span class="tag">HTML</span>
-              <span class="tag">CSS</span>
+              <span class="tag">PHP</span>
+              <span class="tag">HTML/CSS</span>
               <span class="tag">JavaScript</span>
+              <span class="tag">Java</span>
+              <span class="tag">C / C++</span>
+              <span class="tag">Python</span>
               <span class="tag">GitHub</span>
-              <span class="tag">UI Layout</span>
+              <span class="tag">Kotlin / Ruby / Swift basics</span>
             </div>
           </div>
 
@@ -1925,10 +2193,10 @@
         <div class="section-head reveal">
           <div>
             <div class="section-kicker">Selected work</div>
-            <h2>Project slots ready for real cases.</h2>
+            <h2>Projects with real direction.</h2>
           </div>
           <p class="section-desc">
-            Replace these cards with your real projects, GitHub links, screenshots, or client results. The structure is already prepared.
+            A compact selection of projects across web, bots, scripts, and small game development.
           </p>
         </div>
 
@@ -1937,16 +2205,16 @@
             <div>
               <div class="project-top">
                 <div>
-                  <h3>Developer portfolio</h3>
-                  <p>A personal website designed to communicate skills, personality, services, and technical credibility.</p>
+                  <h3>VibeShop website</h3>
+                  <p>A web project with pages for concerts, artists, merchandise, and user-facing flows.</p>
                 </div>
                 <span class="project-number">01</span>
               </div>
             </div>
             <div class="project-tags">
-              <span class="mini-tag">Portfolio</span>
-              <span class="mini-tag">Responsive</span>
-              <span class="mini-tag">UI</span>
+              <span class="mini-tag">Web</span>
+              <span class="mini-tag">HTML/CSS</span>
+              <span class="mini-tag">JavaScript</span>
             </div>
           </article>
 
@@ -1954,16 +2222,16 @@
             <div>
               <div class="project-top">
                 <div>
-                  <h3>Service landing</h3>
-                  <p>A conversion-oriented landing page with clear messaging, CTA logic, benefit blocks, and polished visuals.</p>
+                  <h3>Battleship 2D</h3>
+                  <p>A Windows 2D Battleship game built in Python as a practical programming project.</p>
                 </div>
                 <span class="project-number">02</span>
               </div>
             </div>
             <div class="project-tags">
-              <span class="mini-tag">Landing</span>
-              <span class="mini-tag">CTA</span>
-              <span class="mini-tag">UX</span>
+              <span class="mini-tag">Python</span>
+              <span class="mini-tag">Game</span>
+              <span class="mini-tag">Windows</span>
             </div>
           </article>
 
@@ -1971,16 +2239,33 @@
             <div>
               <div class="project-top">
                 <div>
-                  <h3>Interface concept</h3>
-                  <p>A clean interface prototype with cards, navigation, adaptive grids, and structured content blocks.</p>
+                  <h3>VK game bot</h3>
+                  <p>A game-style VK bot inspired by LesyaBot-like interaction and command logic.</p>
                 </div>
                 <span class="project-number">03</span>
               </div>
             </div>
             <div class="project-tags">
-              <span class="mini-tag">Concept</span>
-              <span class="mini-tag">Grid</span>
-              <span class="mini-tag">JS</span>
+              <span class="mini-tag">Bot</span>
+              <span class="mini-tag">VK</span>
+              <span class="mini-tag">Game logic</span>
+            </div>
+          </article>
+
+          <article class="card project-card reveal">
+            <div>
+              <div class="project-top">
+                <div>
+                  <h3>Telegram & Discord bots</h3>
+                  <p>Chatbot projects for messaging platforms with commands and basic automation logic.</p>
+                </div>
+                <span class="project-number">04</span>
+              </div>
+            </div>
+            <div class="project-tags">
+              <span class="mini-tag">Telegram</span>
+              <span class="mini-tag">Discord</span>
+              <span class="mini-tag">Automation</span>
             </div>
           </article>
         </div>
@@ -2033,10 +2318,10 @@
           </div>
 
           <div class="contact-panel" aria-label="Contact links">
-            <button class="copy-mail" type="button" data-email="deniska7best@gmail.com">
-              <span>deniska7best@gmail.com</span>
-              <span>copy</span>
-            </button>
+            <a class="contact-link" href="mailto:deniska7best@gmail.com?subject=Website%20project&body=Hi%20Denis%2C%0A%0AI%20would%20like%20to%20discuss%20a%20project%20with%20you.%0A%0A">
+              <span>Email me</span>
+              <span>✉</span>
+            </a>
             <a class="contact-link" href="https://github.com/Denis7Kom" target="_blank" rel="noreferrer">
               <span>GitHub</span>
               <span>↗</span>
@@ -2125,19 +2410,21 @@
     typeTerminal();
 
     const copyButton = document.querySelector('.copy-mail');
-    copyButton.addEventListener('click', async () => {
-      const email = copyButton.dataset.email;
-      try {
-        await navigator.clipboard.writeText(email);
-        const oldText = copyButton.innerHTML;
-        copyButton.innerHTML = '<span>' + email + '</span><span>copied ✓</span>';
-        setTimeout(() => {
-          copyButton.innerHTML = oldText;
-        }, 1600);
-      } catch (error) {
-        window.location.href = 'mailto:' + email;
-      }
-    });
+    if (copyButton) {
+      copyButton.addEventListener('click', async () => {
+        const email = copyButton.dataset.email;
+        try {
+          await navigator.clipboard.writeText(email);
+          const oldText = copyButton.innerHTML;
+          copyButton.innerHTML = '<span>' + email + '</span><span>copied ✓</span>';
+          setTimeout(() => {
+            copyButton.innerHTML = oldText;
+          }, 1600);
+        } catch (error) {
+          window.location.href = 'mailto:' + email;
+        }
+      });
+    }
 
     const magneticItems = document.querySelectorAll('.magnetic');
     magneticItems.forEach((item) => {

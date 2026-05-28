@@ -149,47 +149,133 @@
       letter-spacing: -0.045em;
     }
 
-    .brand-mark {
-      width: 44px;
-      height: 44px;
+    .animated-logo {
+      --logo-scale: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: calc(11px * var(--logo-scale));
+      position: relative;
+      isolation: isolate;
+    }
+
+    .logo-mark {
+      position: relative;
+      width: calc(46px * var(--logo-scale));
+      height: calc(46px * var(--logo-scale));
       display: grid;
       place-items: center;
-      border-radius: 16px;
+      border-radius: calc(17px * var(--logo-scale));
       color: #150900;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,0.72), transparent 28%),
+        linear-gradient(135deg, var(--accent-3), var(--accent-2));
+      box-shadow:
+        0 16px 42px rgba(255, 106, 0, 0.30),
+        inset 0 1px 0 rgba(255,255,255,0.55);
+      overflow: hidden;
+      animation: logo-pop 900ms cubic-bezier(.2,.8,.2,1) both;
+    }
+
+    .logo-mark::before {
+      content: "";
+      position: absolute;
+      inset: -42%;
+      background: conic-gradient(from 90deg, transparent, rgba(255,255,255,0.62), transparent, rgba(255,209,102,0.35), transparent);
+      animation: logo-orbit 5.5s linear infinite;
+    }
+
+    .logo-mark::after {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      border-radius: calc(15px * var(--logo-scale));
       background: linear-gradient(135deg, var(--accent-3), var(--accent-2));
-      box-shadow: 0 16px 42px rgba(255, 106, 0, 0.28);
+      z-index: 1;
+    }
+
+    .logo-mark span {
       position: relative;
+      z-index: 2;
+      font-weight: 950;
+      font-size: calc(1rem * var(--logo-scale));
+      letter-spacing: -0.09em;
+    }
+
+    .logo-wordmark {
+      display: grid;
+      gap: calc(1px * var(--logo-scale));
       overflow: hidden;
     }
 
-    .brand-mark::after {
-      content: "";
+    .logo-wordmark strong {
+      display: block;
+      font-size: calc(1rem * var(--logo-scale));
+      line-height: 1;
+      color: var(--text);
+      transform: translateY(110%);
+      animation: word-reveal 780ms cubic-bezier(.2,.8,.2,1) 220ms both;
+    }
+
+    .logo-wordmark span {
+      display: block;
+      color: var(--accent);
+      font-size: calc(0.76rem * var(--logo-scale));
+      letter-spacing: calc(0.10em * var(--logo-scale));
+      text-transform: uppercase;
+      font-weight: 850;
+      transform: translateY(120%);
+      animation: word-reveal 780ms cubic-bezier(.2,.8,.2,1) 360ms both;
+    }
+
+    .logo-scanline {
       position: absolute;
-      inset: -40%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
-      transform: rotate(20deg) translateX(-140%);
-      animation: shine 4.5s infinite;
+      left: calc(58px * var(--logo-scale));
+      right: 0;
+      bottom: calc(-6px * var(--logo-scale));
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      transform-origin: left;
+      transform: scaleX(0);
+      animation: scanline-reveal 900ms cubic-bezier(.2,.8,.2,1) 520ms both;
     }
 
-    @keyframes shine {
-      0%, 46% { transform: rotate(20deg) translateX(-140%); }
-      60%, 100% { transform: rotate(20deg) translateX(140%); }
+    .hero-logo {
+      --logo-scale: 1.42;
+      margin-bottom: 22px;
     }
 
-    .brand-text {
-      display: grid;
-      gap: 1px;
+    .hero-logo .logo-wordmark strong {
+      font-size: clamp(1.25rem, 2vw, 1.72rem);
+      letter-spacing: -0.06em;
     }
 
-    .brand-text strong {
-      font-size: 1rem;
+    .hero-logo .logo-wordmark span {
+      font-size: 0.82rem;
     }
 
-    .brand-text span {
-      color: var(--muted-2);
-      font-size: 0.78rem;
-      letter-spacing: 0;
-      font-weight: 700;
+    @keyframes logo-pop {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(0.82) rotate(-8deg);
+        filter: blur(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1) rotate(0deg);
+        filter: blur(0);
+      }
+    }
+
+    @keyframes logo-orbit {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes word-reveal {
+      to { transform: translateY(0); }
+    }
+
+    @keyframes scanline-reveal {
+      to { transform: scaleX(1); }
     }
 
     .nav-links {
@@ -1108,8 +1194,12 @@
         width: min(100% - 24px, var(--max));
       }
 
-      .brand-text span {
+      .logo-wordmark span {
         display: none;
+      }
+
+      .hero-logo .logo-wordmark span {
+        display: block;
       }
 
       .nav-cta {
@@ -1178,12 +1268,13 @@
 
   <header class="site-header">
     <div class="container nav">
-      <a class="brand" href="#top" aria-label="Go to homepage">
-        <span class="brand-mark">DK</span>
-        <span class="brand-text">
+      <a class="brand animated-logo" href="#top" aria-label="Go to homepage">
+        <span class="logo-mark"><span>DK</span></span>
+        <span class="logo-wordmark">
           <strong>Denis Komarov</strong>
           <span>Web Developer</span>
         </span>
+        <span class="logo-scanline" aria-hidden="true"></span>
       </a>
 
       <nav class="nav-links" aria-label="Main navigation">
@@ -1203,6 +1294,15 @@
     <section class="hero">
       <div class="container hero-grid">
         <div class="hero-content reveal">
+          <div class="animated-logo hero-logo" aria-label="Denis Komarov brand animation">
+            <span class="logo-mark"><span>DK</span></span>
+            <span class="logo-wordmark">
+              <strong>Denis Komarov</strong>
+              <span>Web Developer</span>
+            </span>
+            <span class="logo-scanline" aria-hidden="true"></span>
+          </div>
+
           <div class="eyebrow"><span class="status-dot"></span> Available for web projects · Portfolio-ready delivery</div>
           <h1>I build <span class="gradient-text">sharp websites</span> with clean code and product-grade polish.</h1>
           <p class="hero-text">

@@ -473,6 +473,40 @@
       justify-content: center;
       overflow: visible;
       transform: translateY(1px);
+      position: relative;
+    }
+
+    .header-signature::after {
+      content: "";
+      position: absolute;
+      left: 10px;
+      right: 8px;
+      bottom: 5px;
+      height: 2px;
+      border-radius: 999px;
+      background:
+        linear-gradient(90deg, transparent 0%, rgba(255, 209, 102, 0.15) 8%, var(--accent-3) 34%, var(--accent-2) 72%, transparent 100%);
+      box-shadow:
+        0 0 10px rgba(255, 179, 71, 0.42),
+        0 0 22px rgba(255, 106, 0, 0.18);
+      transform-origin: left;
+      transform: scaleX(0);
+      opacity: 0;
+      animation: header-underline-reveal 950ms cubic-bezier(.2,.8,.2,1) 2.35s forwards;
+    }
+
+    .header-signature::before {
+      content: "";
+      position: absolute;
+      left: 16px;
+      bottom: 3px;
+      width: 34px;
+      height: 6px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(255, 209, 102, 0.42), transparent 70%);
+      filter: blur(4px);
+      opacity: 0;
+      animation: header-underline-glow 1.15s ease 2.55s forwards;
     }
 
     .header-signature-svg {
@@ -542,6 +576,35 @@
 
     @keyframes header-signature-fill {
       to { opacity: 1; }
+    }
+
+    @keyframes header-underline-reveal {
+      0% {
+        opacity: 0;
+        transform: scaleX(0);
+      }
+      18% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 1;
+        transform: scaleX(1);
+      }
+    }
+
+    @keyframes header-underline-glow {
+      0% {
+        opacity: 0;
+        transform: translateX(0) scaleX(0.4);
+      }
+      55% {
+        opacity: 0.9;
+        transform: translateX(92px) scaleX(1.15);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(170px) scaleX(0.6);
+      }
     }
 
     .nav-links {
@@ -1463,6 +1526,12 @@
       .header-signature-svg {
         width: 152px;
         height: 34px;
+      }
+
+      .header-signature::after {
+        left: 8px;
+        right: 6px;
+        bottom: 4px;
       }
 
 

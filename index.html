@@ -3586,7 +3586,11 @@ h2 { font-size:clamp(2.2rem,4.2vw,4.2rem);font-weight:815;
       typingIndex = typingIndex < typingText.length ? typingIndex + 1 : 0;
       setTimeout(typeTerminal, typingIndex === 0 ? 1200 : 52);
     }
-    typeTerminal();
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      if (typingLine) typingLine.textContent = typingText;
+    } else {
+      typeTerminal();
+    }
 
     const copyButton = document.querySelector('.copy-mail');
     if (copyButton) {
@@ -4435,6 +4439,9 @@ h2 { font-size:clamp(2.2rem,4.2vw,4.2rem);font-weight:815;
       de:['Navigationsmenü öffnen','Navigationsmenü schließen']
     };
     trigger.setAttribute('aria-label',(label[lang]||label.en)[open?1:0]);
+    const backLabel={en:'Back to top',ru:'Наверх',it:'Torna su',de:'Nach oben'};
+    const back=document.querySelector('.back-top');
+    if(back)back.setAttribute('aria-label',backLabel[lang]||backLabel.en);
   }
   if (trigger&&menu) {
     trigger.addEventListener('click',()=>{

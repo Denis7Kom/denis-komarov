@@ -14,7 +14,9 @@ jobs:
           persist-credentials: true
           ref: feat/portfolio-experience-refresh
       - name: Apply progressive enhancement
-        run: python3 .github/upgrade-portfolio.py
+        run: |
+          python3 .github/upgrade-portfolio.py
+          python3 .github/finalize-portfolio.py
       - name: Commit updated HTML
         run: |
           git config user.name 'github-actions[bot]'

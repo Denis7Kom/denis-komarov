@@ -1,0 +1,278 @@
+name: Refresh portfolio CSS and menu
+on:
+  push:
+    branches:
+      - design/portfolio-refresh-single-html
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: design/portfolio-refresh-single-html
+      - name: Apply safe single-HTML patch
+        shell: bash
+        run: |
+          from pathlib import Path
+          p = Path("index.html")
+          s = p.read_bytes().decode("utf-8")
+          nl = "\r\n" if "\r\n" in s else "\n"
+          marker = "portfolio-refresh-2026"
+          if marker in s:
+              raise SystemExit("Portfolio refresh already applied")
+          
+          css = """
+              /* portfolio-refresh-2026: compact multilingual nav and refined UI */
+              html { scroll-padding-top: 110px; }
+              .site-header {
+                background: rgba(8,6,4,.82);
+                border-bottom-color: rgba(255,193,111,.16);
+                -webkit-backdrop-filter: blur(22px) saturate(1.25);
+                backdrop-filter: blur(22px) saturate(1.25);
+                box-shadow: 0 12px 40px rgba(0,0,0,.17);
+              }
+              .nav { gap: clamp(8px,1vw,18px); }
+              .nav-links {
+                flex-shrink: 0; white-space: nowrap; gap: 2px; padding: 5px;
+                border-color: rgba(255,209,102,.17);
+                background: linear-gradient(150deg,rgba(255,255,255,.07),rgba(255,179,71,.025));
+              }
+              .nav-links a {
+                display: inline-flex; align-items: center; min-height: 39px;
+                white-space: nowrap; line-height: 1.15;
+                padding: 8px clamp(8px,.75vw,12px);
+                font-size: clamp(.79rem,.85vw,.91rem);
+                font-weight: 720; letter-spacing: -.015em;
+              }
+              .nav-links a.active { color: #ffe9c4; box-shadow: inset 0 0 0 1px rgba(255,179,71,.18); }
+          
+              .nav-menu-toggle {
+                display: none; flex: 0 0 auto; align-items: center; justify-content: center;
+                gap: 11px; min-height: 46px; padding: 10px 16px; cursor: pointer;
+                color: var(--text); font: 750 .9rem/1 var(--font);
+                border: 1px solid rgba(255,209,102,.26); border-radius: 999px;
+                background: rgba(255,255,255,.065);
+                transition: border-color 180ms ease, background 180ms ease;
+              }
+              .nav-menu-toggle:hover,.nav-menu-toggle.is-open {
+                border-color: rgba(255,179,71,.65); background: rgba(255,179,71,.13);
+              }
+              .nav-menu-icon {
+                position: relative; display: inline-block; width: 19px; height: 14px;
+                border-block: 2px solid currentColor; border-radius: 1px;
+              }
+              .nav-menu-icon::after {
+                content: ""; position: absolute; top: 5px; left: 0; width: 100%;
+                border-top: 2px solid currentColor;
+              }
+              .nav-quick-menu[hidden] { display: none !important; }
+              .nav-quick-menu {
+                position: absolute; z-index: 100; top: calc(100% + 8px);
+                right: max(18px, calc((100vw - 1200px) / 2));
+                display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px;
+                width: min(390px,calc(100vw - 36px)); padding: 12px;
+                border: 1px solid rgba(255,184,77,.28); border-radius: 24px;
+                background: rgba(22,16,11,.97);
+                -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px);
+                box-shadow: 0 24px 64px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.07);
+                animation: nav-quick-enter 190ms cubic-bezier(.2,.8,.2,1) both;
+              }
+              .nav-quick-menu a {
+                display: flex; align-items: center; min-height: 49px; padding: 12px 14px;
+                border-radius: 14px; color: #efddc7; font-size: .94rem;
+                font-weight: 760; line-height: 1.25; transition: 180ms ease;
+              }
+              .nav-quick-menu a:hover,.nav-quick-menu a:focus-visible {
+                color: #fff; background: rgba(255,184,77,.13);
+              }
+              @keyframes nav-quick-enter {
+                from { opacity: 0; transform: translateY(-8px) scale(.985); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
+              }
+              .hero { padding-top: clamp(66px,7vw,102px); }
+              .hero h1 {
+                font-size: clamp(3.2rem,6.5vw,6.75rem);
+                line-height: .98; letter-spacing: -.076em; text-wrap: balance;
+              }
+              .hero-text { max-width: 670px; line-height: 1.66; }
+              .section-head h2 { text-wrap: balance; line-height: 1.03; }
+              .section-kicker {
+                display: inline-flex; align-items: center; gap: 10px; letter-spacing: .14em;
+              }
+              .section-kicker::before {
+                content: ""; display: inline-block; width: 19px; height: 1px;
+                background: linear-gradient(90deg,var(--accent-3),var(--accent-2));
+              }
+              .card { --spot-x: 50%; --spot-y: 50%; }
+              .card:hover { box-shadow: 0 24px 56px rgba(0,0,0,.3),0 0 0 1px rgba(255,184,77,.07); }
+              .project-preview img { transition: transform 650ms cubic-bezier(.2,.8,.2,1); }
+              .project-card:hover .project-preview img { transform: scale(1.055); }
+              a:focus-visible,button:focus-visible {
+                outline: 2px solid var(--accent-3); outline-offset: 4px;
+              }
+              .skip-link {
+                position: fixed; z-index: 150; top: 10px; left: 12px;
+                padding: 12px 16px; border-radius: 12px;
+                color: #150900; background: var(--accent-3); font-weight: 800;
+                transform: translateY(-180%);
+              }
+              .skip-link:focus { transform: translateY(0); }
+              .back-to-top {
+                position: fixed; z-index: 72; right: 22px; bottom: 22px;
+                display: grid; place-items: center; width: 47px; height: 47px;
+                color: #ffe5be; border: 1px solid rgba(255,193,111,.28);
+                border-radius: 16px; background: rgba(27,19,13,.88);
+                -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+                box-shadow: 0 16px 36px rgba(0,0,0,.3); font-size: 1.45rem;
+                opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(12px);
+                transition: opacity 220ms ease, visibility 220ms ease,
+                            transform 220ms ease, border-color 220ms ease;
+              }
+              .back-to-top.is-visible {
+                opacity: 1; visibility: visible; pointer-events: auto; transform: translateY(0);
+              }
+              .back-to-top:hover { border-color: rgba(255,209,102,.75); transform: translateY(-3px); }
+              @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference) {
+                .card::before {
+                  background: radial-gradient(360px circle at var(--spot-x) var(--spot-y),
+                                              rgba(255,194,109,.18),transparent 62%),
+                              linear-gradient(135deg,rgba(255,255,255,.065),transparent 45%);
+                }
+              }
+              @media (max-width:1420px) {
+                .nav-links { display: none !important; }
+                .nav-menu-toggle { display: inline-flex; }
+              }
+              @media (max-width:900px) { .nav-cta { display: none; } }
+              @media (max-width:720px) {
+                html { scroll-padding-top: 130px; }
+                .nav {
+                  display: grid; grid-template-columns: minmax(0,1fr) auto;
+                  gap: 10px; padding: 10px 0;
+                }
+                .header-brand { grid-column: 1 / -1; width: 100%; justify-content: center; }
+                .lang-switch {
+                  grid-column: 1; order: 0; width: 100%; max-width: none; margin: 0;
+                }
+                .nav-menu-toggle {
+                  grid-column: 2; align-self: center; min-height: 44px; padding: 11px 13px;
+                }
+                .nav-quick-menu { top: calc(100% + 3px); right: 12px; width: calc(100vw - 24px); }
+                .hero { padding-top: 44px; }
+                .hero h1 { font-size: clamp(2.3rem,12.5vw,4.2rem); line-height: .97; }
+                .back-to-top { right: 13px; bottom: 13px; width: 44px; height: 44px; }
+              }
+              @media (max-width:370px) {
+                .nav-menu-toggle { padding: 11px 10px; gap: 7px; font-size: .82rem; }
+                .lang-switch { gap: 2px; }
+              }
+              @media (prefers-reduced-motion: reduce) {
+                .nav-quick-menu { animation: none; }
+                .project-card:hover .project-preview img { transform: none; }
+                .back-to-top { transition: none; }
+              }
+          """
+          
+          script = """
+              /* portfolio-refresh-2026: compact menu, accessible controls, card spotlight */
+              (() => {
+                const toggle = document.querySelector('.nav-menu-toggle');
+                const menu = document.getElementById('nav-quick-menu');
+                const topLink = document.querySelector('.back-to-top');
+                if (toggle && menu) {
+                  const setOpen = (open) => {
+                    menu.hidden = !open;
+                    toggle.setAttribute('aria-expanded', String(open));
+                    toggle.classList.toggle('is-open', open);
+                  };
+                  toggle.addEventListener('click', () => setOpen(menu.hidden));
+                  menu.addEventListener('click', (event) => {
+                    if (event.target.closest('a')) setOpen(false);
+                  });
+                  document.addEventListener('pointerdown', (event) => {
+                    if (!menu.hidden && !menu.contains(event.target) && !toggle.contains(event.target))
+                      setOpen(false);
+                  });
+                  document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && !menu.hidden) { setOpen(false); toggle.focus(); }
+                  });
+                  window.addEventListener('resize', () => {
+                    if (window.innerWidth > 1420 && !menu.hidden) setOpen(false);
+                  }, { passive: true });
+                }
+                const labels = {
+                  en: ['Menu','Open navigation menu','Back to top'],
+                  ru: ['Меню','Открыть меню разделов','Наверх'],
+                  it: ['Menu','Apri il menu di navigazione','Torna su'],
+                  de: ['Menü','Navigationsmenü öffnen','Nach oben']
+                };
+                const syncLabels = (lang) => {
+                  const data = labels[lang] || labels.en;
+                  const title = toggle && toggle.querySelector('.nav-menu-label');
+                  if (title) title.textContent = data[0];
+                  if (toggle) toggle.setAttribute('aria-label',data[1]);
+                  if (topLink) topLink.setAttribute('aria-label',data[2]);
+                };
+                document.querySelectorAll('.lang-btn').forEach((b) => {
+                  b.addEventListener('click', () => syncLabels(b.dataset.lang));
+                });
+                syncLabels(document.documentElement.lang);
+                if (topLink) {
+                  const onScroll = () => {
+                    const visible = window.scrollY > 520;
+                    topLink.classList.toggle('is-visible',visible);
+                    topLink.tabIndex = visible ? 0 : -1;
+                  };
+                  window.addEventListener('scroll',onScroll,{ passive:true });
+                  onScroll();
+                }
+                if (window.matchMedia('(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)').matches) {
+                  document.querySelectorAll('.card').forEach((card) => {
+                    card.addEventListener('pointermove',(event) => {
+                      const rect = card.getBoundingClientRect();
+                      card.style.setProperty('--spot-x',Math.round(event.clientX-rect.left)+'px');
+                      card.style.setProperty('--spot-y',Math.round(event.clientY-rect.top)+'px');
+                    },{ passive:true });
+                  });
+                }
+              })();
+          """
+          
+          nav_button = '      <button class="nav-menu-toggle" type="button" aria-expanded="false" aria-controls="nav-quick-menu" aria-label="Open navigation menu"><span class="nav-menu-icon" aria-hidden="true"></span><span class="nav-menu-label">Menu</span></button>'
+          nav_menu = """    <nav class="nav-quick-menu" id="nav-quick-menu" aria-label="Section navigation" hidden>
+                <a href="#about">About</a>
+                <a href="#services">Build</a>
+                <a href="#stack">Stack</a>
+                <a href="#work">Work</a>
+                <a href="#aviation">Aviation</a>
+                <a href="#contact">Contact</a>
+              </nav>"""
+          
+          anchors = ["</style>","</script>","  </header>","  <script>","      <div class=\"lang-switch\"","<body>"]
+          for anchor in anchors:
+              assert anchor in s, "Missing anchor: " + anchor
+          assert s.count("<!doctype html>") == 1
+          previous_images = s.count("data:image/")
+          s = s.replace("</style>", css.replace("\n",nl)+nl+"  </style>", 1)
+          s = s.replace('      <div class="lang-switch"', nav_button + nl*2 + '      <div class="lang-switch"', 1)
+          s = s.replace("  </header>", nav_menu.replace("\n",nl)+nl+"  </header>", 1)
+          s = s.replace("<body>", '<body>'+nl+'  <a class="skip-link" href="#top">Skip to content</a>', 1)
+          s = s.replace("  <script>", '  <a class="back-to-top" href="#top" aria-label="Back to top" tabindex="-1">↑</a>'+nl*2+"  <script>", 1)
+          s = s.replace("</script>", script.replace("\n",nl)+nl+"  </script>", 1)
+          assert s.count("data:image/") == previous_images
+          assert s.count("nav-menu-toggle") > 1
+          assert s.count("</script>") == 1
+          assert s.count("</style>") == 1
+          p.write_bytes(s.encode("utf-8"))
+          print("Patched index.html",len(s),"characters")
+          
+      - name: Commit changes on the feature branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add index.html
+          git commit -m 'Refresh single-file portfolio design and navigation' || exit 0
+          git push origin HEAD:design/portfolio-refresh-single-html

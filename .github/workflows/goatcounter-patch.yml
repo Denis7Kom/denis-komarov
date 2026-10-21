@@ -1,0 +1,126 @@
+name: Add analytics to single-file portfolio
+
+on:
+  push:
+    branches:
+      - feature/goatcounter-analytics-2026
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/goatcounter-analytics-2026
+      - name: Insert GoatCounter tracking and public visits
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+
+          path = Path("index.html")
+          raw = path.read_text(encoding="utf-8")
+          marker = "goatcounter-portfolio-widget-2026"
+          if marker in raw:
+              raise SystemExit("Already patched.")
+          if raw.count("</style>") != 1 or raw.count('<footer class="site-footer">') != 1:
+              raise SystemExit("Unexpected document structure.")
+
+          css = """
+            /* goatcounter-portfolio-widget-2026 */
+            .analytics-strip--goat {
+              display:flex;align-items:center;gap:16px;margin:0 0 28px;
+              padding:18px 22px;border:1px solid rgba(255,184,77,.20);
+              border-radius:20px;background:linear-gradient(115deg,rgba(255,179,71,.10),rgba(255,255,255,.035));
+              color:var(--text);
+            }
+            .analytics-strip--goat .analytics-eye {
+              flex:0 0 42px;width:42px;height:42px;display:grid;place-items:center;
+              border-radius:13px;background:rgba(255,179,71,.12);color:var(--accent);
+            }
+            .analytics-strip--goat .analytics-eye svg{width:22px;height:22px;}
+            .analytics-strip--goat .analytics-labels{display:grid;gap:4px;}
+            .analytics-strip--goat .analytics-title{font-size:.94rem;font-weight:760;}
+            .analytics-strip--goat .analytics-detail{color:var(--muted);font-size:.79rem;}
+            .analytics-strip--goat .analytics-number{
+              margin-left:auto;color:var(--accent-3);font-variant-numeric:tabular-nums;
+              font-size:clamp(1.45rem,3vw,2.05rem);font-weight:850;letter-spacing:-.045em;white-space:nowrap;
+            }
+            @media(max-width:520px){
+              .analytics-strip--goat{padding:15px;gap:11px;border-radius:16px;}
+              .analytics-strip--goat .analytics-eye{flex-basis:36px;width:36px;height:36px;}
+              .analytics-strip--goat .analytics-title{font-size:.86rem;}
+              .analytics-strip--goat .analytics-detail{font-size:.70rem;}
+            }
+          """
+          panel = """
+              <div class="container">
+                <div class="analytics-strip--goat" aria-label="Site visit counter">
+                  <div class="analytics-eye" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.4-6.5 10-6.5S22 12 22 12s-3.4 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+                  </div>
+                  <div class="analytics-labels">
+                    <span class="analytics-title">Recorded visits</span>
+                    <span class="analytics-detail">Since tracking started</span>
+                  </div>
+                  <strong class="analytics-number" id="site-visit-count" aria-live="polite">—</strong>
+                </div>
+              </div>
+          """
+          analytics = """
+            <!-- GoatCounter tracking; do not expose account tokens in public HTML. -->
+            <script data-goatcounter="https://denis-komarov.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+            <script>
+              (() => {
+                const counter = document.getElementById('site-visit-count');
+                if (!counter) return;
+                fetch('https://denis-komarov.goatcounter.com/counter/TOTAL.json', { cache: 'no-store' })
+                  .then((res) => { if (!res.ok) throw new Error('Unavailable'); return res.json(); })
+                  .then((data) => {
+                    const value = typeof data.count === 'string' ? data.count.trim() : '';
+                    if (!/^[0-9 ,.]+$/.test(value)) throw new Error('Invalid value');
+                    counter.textContent = value;
+                  })
+                  .catch(() => {
+                    counter.textContent = '—';
+                    counter.title = 'Enable public visitor counts in GoatCounter settings';
+                  });
+              })();
+            </script>
+          """
+
+          raw = raw.replace("</style>", css + "\n  </style>", 1)
+          raw = raw.replace('<footer class="site-footer">', '<footer class="site-footer">' + panel, 1)
+          raw = raw.replace("</body>", analytics + "\n</body>", 1)
+
+          # Keep the existing automatic language switcher in control.
+          anchor = "    Object.keys(translationOverrides).forEach((lang) => {"
+          extra = """    Object.assign(translations.ru, { 'Recorded visits': 'Посещения сайта', 'Since tracking started': 'С момента подключения' });
+              Object.assign(translations.it, { 'Recorded visits': 'Visite registrate', 'Since tracking started': 'Dall’attivazione del contatore' });
+              Object.assign(translations.de, { 'Recorded visits': 'Erfasste Besuche', 'Since tracking started': 'Seit Aktivierung des Zählers' });
+
+          """
+          if anchor not in raw: raise SystemExit("Could not find translation anchor")
+          raw = raw.replace(anchor, extra + anchor, 1)
+          text_anchor = "          if (!parent) return NodeFilter.FILTER_REJECT;"
+          if text_anchor not in raw: raise SystemExit("Could not find text walker")
+          raw = raw.replace(text_anchor, text_anchor + "\n          if (parent.closest('#site-visit-count')) return NodeFilter.FILTER_REJECT;", 1)
+
+          if not all(i in raw for i in ("goatcounter-portfolio-widget-2026", "site-visit-count", "data-goatcounter")):
+              raise SystemExit("Patch verification failed")
+
+          path.write_text(raw, encoding="utf-8")
+          PY
+      - name: Commit patched HTML
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git diff --cached --check
+          git commit -m "Add GoatCounter tracking and public visit counter"
+          git push origin feature/goatcounter-analytics-2026

@@ -2912,6 +2912,26 @@
     @media (min-width:721px) and (max-width:1000px) {
       .site-header .nav-cta { display:none; }
     }
+    /* GoatCounter footer counter */
+    .gc-stats { display:flex; justify-content:center; padding-bottom:28px; }
+    .gc-stats-card {
+      display:flex; align-items:center; flex-wrap:wrap; gap:14px;
+      padding:12px 20px; min-height:62px;
+      border:1px solid rgba(255,184,77,.2); border-radius:20px;
+      background:linear-gradient(120deg,rgba(255,179,71,.10),rgba(255,255,255,.035));
+      box-shadow:0 12px 38px rgba(0,0,0,.17);
+    }
+    .gc-stats-icon { display:grid; place-items:center; width:34px; height:34px;
+      border-radius:12px; color:var(--accent-3); background:rgba(255,179,71,.13); }
+    .gc-stats-icon svg {width:20px;height:20px}
+    .gc-stats-label {color:var(--muted);font-size:.85rem;font-weight:700}
+    .gc-stats-value {color:var(--accent-3);font:800 1.35rem var(--mono);
+      letter-spacing:-.035em;font-variant-numeric:tabular-nums}
+    .gc-stats-note {color:var(--muted-2);font-size:.76rem}
+    @media(max-width:520px) {
+      .gc-stats-card{gap:9px;padding:10px 13px;border-radius:16px}
+      .gc-stats-note{flex-basis:100%;padding-left:43px}
+    }
   </style>
 </head>
 <body>
@@ -3488,6 +3508,19 @@
     <div class="container footer-inner">
       <p>© <span id="year"></span> Denis Komarov. Web development with aviation-grade precision.</p>
       <p>Let's build something together!</p>
+    </div>
+    <div class="container gc-stats" id="goatcounter-pageviews">
+      <div class="gc-stats-card" aria-label="Website page views">
+        <span class="gc-stats-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+            <path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12Z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </span>
+        <span class="gc-stats-label" id="gc-label">Page views</span>
+        <span class="gc-stats-value" id="gc-value" aria-live="polite" title="Waiting for stats">—</span>
+        <span class="gc-stats-note" id="gc-note">Since tracking started</span>
+      </div>
     </div>
   </footer>
 
@@ -4535,5 +4568,41 @@
       }
     })();
   </script>
+  <script>
+    /* Public GoatCounter total pageviews. count_unique is not a unique count. */
+    (() => {
+      const number = document.getElementById('gc-value');
+      const label = document.getElementById('gc-label');
+      const note = document.getElementById('gc-note');
+      const words = {
+        en: ['Page views', 'Since tracking started'],
+        ru: ['Просмотры', 'С начала учёта'],
+        it: ['Visualizzazioni', "Dall'inizio del conteggio"],
+        de: ['Seitenaufrufe', 'Seit Beginn der Erfassung']
+      };
+      let count = null;
+      const render = () => {
+        const [l, n] = words[document.documentElement.lang] || words.en;
+        label.textContent = l;
+        note.textContent = n;
+        number.textContent = count === null ? '—' : count;
+      };
+      document.querySelectorAll('.lang-btn').forEach(btn =>
+        btn.addEventListener('click', () => requestAnimationFrame(render)));
+      render();
+      fetch('https://denis-komarov.goatcounter.com/counter/TOTAL.json')
+        .then(r => { if (!r.ok) throw new Error('Counter unavailable'); return r.json(); })
+        .then(d => {
+          if (d && (typeof d.count === 'string' || typeof d.count === 'number')) {
+            count = String(d.count);
+            number.title = 'Page views (cached for up to 4 hours)';
+            render();
+          }
+        })
+        .catch(() => { number.title = 'Enable public visitor counts in GoatCounter settings'; render(); });
+    })();
+  </script>
+  <script data-goatcounter="https://denis-komarov.goatcounter.com/count"
+          async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>

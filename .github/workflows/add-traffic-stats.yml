@@ -1,0 +1,146 @@
+name: Patch public traffic counters
+on:
+  push:
+    branches:
+      - feature/public-traffic-counters-20261021
+permissions:
+  contents: write
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/public-traffic-counters-20261021
+      - name: Patch the existing large HTML without changing other files
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("index.html")
+          b = p.read_bytes()
+          src = b.decode("utf-8")
+          nl = "\r\n" if "\r\n" in src else "\n"
+          def normalized(x):
+              return x.replace("\n", nl)
+          marker = "public-traffic-2026"
+          if marker in src:
+              print("Already applied"); raise SystemExit(0)
+          style = """
+              /* public-traffic-2026: isolated styles for the public stats widget. */
+              .traffic-panel { width:min(100% - 36px,var(--max)); margin:0 auto 24px; padding:20px clamp(18px,3vw,28px); border:1px solid var(--line); border-radius:22px; background:linear-gradient(110deg,rgba(255,184,77,.085),rgba(255,255,255,.035)); }
+              .traffic-header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px 16px; margin-bottom:14px; }
+              .traffic-title { font-size:.96rem; font-weight:800; color:var(--text); }
+              .traffic-period { font-size:.76rem; color:var(--muted); }
+              .traffic-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+              .traffic-tile { min-width:0; border:1px solid rgba(255,184,77,.12); border-radius:16px; padding:14px 17px; background:rgba(5,4,3,.27); }
+              .traffic-label { display:block; font-size:.81rem; color:var(--muted); }
+              .traffic-value { display:block; min-height:1.35em; font-size:clamp(1.55rem,3vw,2.1rem); line-height:1.35; font-weight:850; letter-spacing:-.04em; color:var(--accent-3); font-variant-numeric:tabular-nums; }
+              .traffic-footer { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; margin-top:12px; }
+              .traffic-note { font-size:.72rem; color:var(--muted-2); }
+              .traffic-provider { display:inline-flex; align-items:center; opacity:.85; transition:opacity .2s; }
+              .traffic-provider:hover { opacity:1; }
+              .traffic-provider img { display:block; max-height:27px; max-width:100%; height:auto; }
+              @media(max-width:460px) { .traffic-grid { gap:8px; } .traffic-tile { padding:11px; } .traffic-value { font-size:1.5rem; } }
+          """
+          panel = """
+              <section class="traffic-panel" aria-label="Site analytics">
+                <div class="traffic-header">
+                  <span class="traffic-title" data-traffic-label="title">Site analytics</span>
+                  <span class="traffic-period" data-traffic-label="period">Last 30 days</span>
+                </div>
+                <div class="traffic-grid">
+                  <div class="traffic-tile">
+                    <span class="traffic-label" data-traffic-label="views">Page views</span>
+                    <span class="traffic-value" id="traffic-pageviews" aria-live="polite"></span>
+                  </div>
+                  <div class="traffic-tile">
+                    <span class="traffic-label" data-traffic-label="visitors">Unique visitors</span>
+                    <span class="traffic-value" id="traffic-visitors" aria-live="polite"></span>
+                  </div>
+                </div>
+                <div class="traffic-footer">
+                  <span class="traffic-note" data-traffic-label="note">Estimated figures; blockers may reduce recorded traffic.</span>
+                  <a class="traffic-provider" href="https://www.simpleanalytics.com/?utm_source=denis7kom.github.io&amp;utm_content=badge" referrerpolicy="origin" target="_blank" rel="noopener noreferrer" aria-label="Simple Analytics">
+                    <picture>
+                      <source srcset="https://simpleanalyticsbadges.com/denis7kom.github.io?mode=dark&amp;counter=false" media="(prefers-color-scheme:dark)">
+                      <img src="https://simpleanalyticsbadges.com/denis7kom.github.io?mode=light&amp;counter=false" loading="lazy" referrerpolicy="no-referrer" crossorigin="anonymous" alt="Simple Analytics">
+                    </picture>
+                  </a>
+                </div>
+              </section>
+          """
+          i18n = """
+              const trafficTranslations = {
+                en: {title:"Site analytics",period:"Last 30 days",views:"Page views",visitors:"Unique visitors",note:"Estimated figures; blockers may reduce recorded traffic."},
+                ru: {title:"Статистика сайта",period:"За последние 30 дней",views:"Просмотры",visitors:"Уникальные посетители",note:"Оценочные данные: блокировщики могут уменьшать учтённый трафик."},
+                it: {title:"Statistiche del sito",period:"Ultimi 30 giorni",views:"Visualizzazioni",visitors:"Visitatori unici",note:"Dati stimati: i blocchi del tracciamento possono ridurre i conteggi."},
+                de: {title:"Website-Statistik",period:"Letzte 30 Tage",views:"Seitenaufrufe",visitors:"Eindeutige Besucher",note:"Schätzwerte: Tracking-Blocker können die Zählung reduzieren."}
+              };
+              function localizeTraffic(language) {
+                const labels = trafficTranslations[language] || trafficTranslations.en;
+                document.querySelectorAll('[data-traffic-label]').forEach(el => {
+                  if (labels[el.dataset.trafficLabel]) el.textContent = labels[el.dataset.trafficLabel];
+                });
+              }
+          
+          """
+          script = """
+            <!-- Simple Analytics: after adding denis7kom.github.io to dashboard, enable public stats.
+                 The free tier requires the visible linked footer badge above.
+                 No private API tokens may be placed in a publicly served HTML file. -->
+            <script async src="https://scripts.simpleanalyticscdn.com/latest.js"></script>
+            <script>
+              (async function renderPublicTrafficStats() {
+                const viewsNode = document.getElementById('traffic-pageviews');
+                const visitorsNode = document.getElementById('traffic-visitors');
+                if (!viewsNode || !visitorsNode) return;
+                const api = new URL('https://simpleanalytics.com/denis7kom.github.io.json');
+                api.searchParams.set('version','6');
+                api.searchParams.set('fields','pageviews,visitors');
+                api.searchParams.set('start','today-30d');
+                api.searchParams.set('end','today');
+                api.searchParams.set('pages','/denis-komarov/');
+                api.searchParams.set('timezone','Europe/Rome');
+                try {
+                  const response = await fetch(api.toString(), {cache:'no-store'});
+                  if (!response.ok) throw new Error('Stats unavailable: '+response.status);
+                  const stats = await response.json();
+                  if (stats.ok === false || !Number.isFinite(stats.pageviews) || !Number.isFinite(stats.visitors)) {
+                    throw new Error('Invalid stats response');
+                  }
+                  const format = new Intl.NumberFormat(document.documentElement.lang || 'en');
+                  viewsNode.textContent = format.format(Math.max(0,stats.pageviews));
+                  visitorsNode.textContent = format.format(Math.max(0,stats.visitors));
+                } catch(e) {
+                  // Never display invented metrics or an unverified zero.
+                  viewsNode.textContent = '—';
+                  visitorsNode.textContent = '—';
+                }
+              })();
+            </script>
+          """
+          def change(needle, replacement):
+              global src
+              n = src.count(needle)
+              if n != 1: raise RuntimeError("Expected one anchor: %r; got %d" % (needle[:100],n))
+              src=src.replace(needle,replacement,1)
+          change("  </style>",normalized(style)+"  </style>")
+          change('    <div class="container footer-inner">', normalized(panel)+'    <div class="container footer-inner">')
+          change("    function applyLanguage(lang) {", normalized(i18n)+"    function applyLanguage(lang) {")
+          change("      document.documentElement.lang = lang;", "      document.documentElement.lang = lang;"+nl+"      localizeTraffic(lang);")
+          change("  </script>"+nl+"</body>", "  </script>"+normalized(script)+"</body>")
+          assert src.count(marker)==1 and src.count("renderPublicTrafficStats")==1
+          assert len(src)>len(b) and src.count('<footer class="site-footer">')==1
+          p.write_bytes(src.encode('utf-8'))
+          print("Patched",len(b),"->",len(src.encode('utf-8')))
+          
+          PY
+      - name: Verify and commit
+        run: |
+          git diff --numstat
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add public pageview and visitor metrics"
+          git push origin feature/public-traffic-counters-20261021

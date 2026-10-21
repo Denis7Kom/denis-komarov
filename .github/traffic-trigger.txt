@@ -1,1 +1,0 @@
-Trigger patch workflow on the feature branch. This file will be removed before opening a PR.

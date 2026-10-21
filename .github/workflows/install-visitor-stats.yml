@@ -1,5 +1,7 @@
 name: Install visitor statistics
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [feat/visitor-stats]
   workflow_dispatch:

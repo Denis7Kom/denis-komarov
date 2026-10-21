@@ -2912,7 +2912,19 @@
     @media (min-width:721px) and (max-width:1000px) {
       .site-header .nav-cta { display:none; }
     }
-  </style>
+  
+    /* GoatCounter footer counters */
+    .traffic-overview{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:26px;padding:18px 22px;border:1px solid rgba(255,184,77,.18);border-radius:22px;background:linear-gradient(105deg,rgba(255,184,77,.09),rgba(255,255,255,.025) 85%)}
+    .traffic-heading{display:flex;align-items:center;gap:12px}
+    .traffic-icon{width:43px;height:43px;display:grid;place-items:center;flex:none;border-radius:14px;background:rgba(255,184,77,.12);color:var(--accent)}
+    .traffic-label{font-size:.91rem;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+    .traffic-caption{font-size:.73rem;line-height:1.45;color:var(--muted-2);margin-top:4px}
+    .traffic-metrics{display:grid;grid-template-columns:repeat(2,minmax(95px,1fr));gap:22px}
+    .traffic-metric{display:grid;gap:4px}
+    .traffic-value{font-variant-numeric:tabular-nums;color:var(--accent-3);font-weight:850;font-size:clamp(1.3rem,2vw,1.65rem);line-height:1.1}
+    .traffic-period{color:var(--muted);font-size:.75rem;white-space:nowrap}
+    @media(max-width:640px){.traffic-overview{align-items:stretch;flex-direction:column;padding:18px;gap:18px}.traffic-metrics{gap:10px}}
+</style>
 </head>
 <body>
   <a class="skip-main" href="#top">Skip to content</a>
@@ -3485,6 +3497,19 @@
   </main>
 
   <footer class="site-footer">
+    <div class="container">
+      <div class="traffic-overview">
+        <div class="traffic-heading">
+          <span class="traffic-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></span>
+          <div><div class="traffic-label">Site visits</div><div class="traffic-caption">GoatCounter · figures may be delayed</div></div>
+        </div>
+        <div class="traffic-metrics">
+          <div class="traffic-metric"><strong class="traffic-value" data-traffic="total" aria-live="polite">—</strong><span class="traffic-period">All time</span></div>
+          <div class="traffic-metric"><strong class="traffic-value" data-traffic="month" aria-live="polite">—</strong><span class="traffic-period">Last month</span></div>
+        </div>
+      </div>
+    </div>
+
     <div class="container footer-inner">
       <p>© <span id="year"></span> Denis Komarov. Web development with aviation-grade precision.</p>
       <p>Let's build something together!</p>
@@ -3607,6 +3632,10 @@
 
     const translations = {
       "ru": {
+            "Site visits": "Посещения сайта",
+            "GoatCounter · figures may be delayed": "GoatCounter · данные обновляются с задержкой",
+            "All time": "За всё время",
+            "Last month": "За месяц",
             "About": "Обо мне",
             "Build": "Проекты",
             "Stack": "Стек",
@@ -3748,6 +3777,10 @@
             "→ shipping clean, responsive experiences": "→ создаю чистый адаптивный опыт"
       },
       "it": {
+            "Site visits": "Visite al sito",
+            "GoatCounter · figures may be delayed": "GoatCounter · aggiornamento con ritardo",
+            "All time": "Da sempre",
+            "Last month": "Ultimo mese",
             "About": "Chi sono",
             "Build": "Cosa creo",
             "Stack": "Stack",
@@ -3864,6 +3897,10 @@
             "→ shipping clean, responsive experiences": "→ creo esperienze pulite e responsive"
       },
       "de": {
+            "Site visits": "Website-Besuche",
+            "GoatCounter · figures may be delayed": "GoatCounter · verzögert aktualisiert",
+            "All time": "Insgesamt",
+            "Last month": "Letzter Monat",
             "About": "Über mich",
             "Build": "Build",
             "Stack": "Stack",
@@ -4533,6 +4570,35 @@
           },{passive:true});
         });
       }
+    })();
+  </script>
+
+  <script data-goatcounter="https://denis-komarov.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+  <script>
+    (() => {
+      const base = 'https://denis-komarov.goatcounter.com/counter/TOTAL.json';
+      const results = {total:null,month:null};
+      function show() {
+        const locale = {ru:'ru-RU',it:'it-IT',de:'de-DE',en:'en-US'}[document.documentElement.lang] || 'en-US';
+        for (const metric of ['total','month']) {
+          const el = document.querySelector('[data-traffic="'+metric+'"]');
+          if (el) el.textContent = results[metric] === null ? '—' : new Intl.NumberFormat(locale).format(results[metric]);
+        }
+      }
+      async function get(url) {
+        const response = await fetch(url,{mode:'cors',cache:'no-store'});
+        if (!response.ok) throw new Error('Public counter unavailable');
+        const obj = await response.json();
+        const digits = String(obj.count ?? '').replace(/[^0-9]/g,'');
+        if (!digits) throw new Error('Empty counter response');
+        return Number(digits);
+      }
+      Promise.allSettled([get(base),get(base+'?start=month')]).then(rows=>{
+        if(rows[0].status==='fulfilled') results.total=rows[0].value;
+        if(rows[1].status==='fulfilled') results.month=rows[1].value;
+        show();
+      });
+      document.querySelectorAll('.lang-btn').forEach(btn=>btn.addEventListener('click',()=>requestAnimationFrame(show)));
     })();
   </script>
 </body>

@@ -2912,6 +2912,16 @@
     @media (min-width:721px) and (max-width:1000px) {
       .site-header .nav-cta { display:none; }
     }
+  
+/* dk-public-stats-v1: small responsive counters in the footer */
+.site-analytics{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:24px;padding:18px 22px;border:1px solid rgba(255,184,77,.17);border-radius:22px;background:linear-gradient(110deg,rgba(255,179,71,.065),rgba(255,255,255,.025))}
+.site-analytics-heading{color:var(--accent-3);font:700 .69rem/1.4 var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.site-analytics-note{display:block;max-width:370px;margin-top:5px;color:var(--muted-2);font-size:.72rem;line-height:1.5}
+.site-analytics-values{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.site-analytics-stat{min-width:148px;padding:8px 17px;border-left:1px solid rgba(255,184,77,.18)}
+.site-analytics-number{display:block;font-size:clamp(1.4rem,2.1vw,1.85rem);line-height:1.2;font-weight:850;letter-spacing:-.045em;color:var(--text);font-variant-numeric:tabular-nums}
+.site-analytics-caption{display:block;margin-top:4px;font-size:.77rem;color:var(--muted);font-weight:600}
+@media(max-width:720px){.site-analytics{flex-direction:column;align-items:flex-start;padding:16px}.site-analytics-values{width:100%;gap:0}.site-analytics-stat{flex:1;min-width:0;padding:8px 10px}.site-analytics-stat:first-child{border-left:0;padding-left:0}}
   </style>
 </head>
 <body>
@@ -3485,6 +3495,23 @@
   </main>
 
   <footer class="site-footer">
+  <div class="container site-analytics" aria-label="Site visit statistics">
+    <div>
+      <span class="site-analytics-heading" data-stats-label="heading">Site activity</span>
+      <small class="site-analytics-note" data-stats-label="note">Since tracking began. Unique visitors are estimated by browser.</small>
+    </div>
+    <div class="site-analytics-values">
+      <div class="site-analytics-stat">
+        <strong class="site-analytics-number" id="dk-pageviews" aria-live="polite">—</strong>
+        <span class="site-analytics-caption" data-stats-label="views">Page views</span>
+      </div>
+      <div class="site-analytics-stat">
+        <strong class="site-analytics-number" id="dk-unique" aria-live="polite">—</strong>
+        <span class="site-analytics-caption" data-stats-label="unique">Unique visitors*</span>
+      </div>
+    </div>
+  </div>
+
     <div class="container footer-inner">
       <p>© <span id="year"></span> Denis Komarov. Web development with aviation-grade precision.</p>
       <p>Let's build something together!</p>
@@ -4534,6 +4561,62 @@
         });
       }
     })();
+  </script>
+
+  <!-- GoatCounter: page load totals + approximate unique browsers. -->
+  <script id="dk-goat-script" data-goatcounter="https://denis-komarov.goatcounter.com/count"
+          data-goatcounter-settings='{"no_session":true}'
+          async src="https://gc.zgo.at/count.js"></script>
+  <script>
+  /* dk-public-stats-v1 */
+  (() => {
+    const base = 'https://denis-komarov.goatcounter.com';
+    const browserEvent = 'first-browser-v1';
+    const browserKey = 'dk-first-browser-v1';
+    const labels = {
+      en:{heading:'Site activity',note:'Since tracking began. Unique visitors are estimated by browser.',views:'Page views',unique:'Unique visitors*'},
+      ru:{heading:'Активность сайта',note:'С момента подключения. Уникальные посетители — оценка по браузерам.',views:'Просмотры',unique:'Уникальные посетители*'},
+      it:{heading:'Attività del sito',note:'Dall’attivazione. Visitatori unici stimati per browser.',views:'Visualizzazioni',unique:'Visitatori unici*'},
+      de:{heading:'Website-Aktivität',note:'Seit Messbeginn. Eindeutige Besucher werden nach Browser geschätzt.',views:'Seitenaufrufe',unique:'Eindeutige Besucher*'}
+    };
+    const localize = () => {
+      const dict = labels[document.documentElement.lang] || labels.en;
+      document.querySelectorAll('[data-stats-label]').forEach(el => {
+        el.textContent = dict[el.dataset.statsLabel];
+      });
+    };
+    localize();
+    document.querySelectorAll('.lang-btn').forEach(btn =>
+      btn.addEventListener('click', () => queueMicrotask(localize))
+    );
+    function firstBrowser() {
+      try {
+        if (localStorage.getItem(browserKey) !== null) return;
+        if (!window.goatcounter || typeof window.goatcounter.count !== 'function') return;
+        window.goatcounter.count({path:browserEvent, title:'First visit from browser',event:true,no_session:true});
+        localStorage.setItem(browserKey, '1');
+      } catch (_) { /* storage disabled: no unique-browser event */ }
+    }
+    const gcScript = document.getElementById('dk-goat-script');
+    gcScript.addEventListener('load', firstBrowser);
+    if (window.goatcounter && typeof window.goatcounter.count === 'function') firstBrowser();
+    async function readCounter(id,path) {
+      const out = document.getElementById(id);
+      try {
+        const r = await fetch(base + '/counter/' + encodeURIComponent(path) + '.json', {cache:'no-store'});
+        if (r.status === 404) { out.textContent = '0'; return; }
+        if (!r.ok) return;
+        const n = (await r.json()).count;
+        if (typeof n === 'number' || (typeof n === 'string' && /^[\d\s,.]+$/.test(n))) out.textContent = String(n);
+      } catch (_) { /* public counting not enabled or blocked; show an em dash */ }
+    }
+    const refresh = () => {
+      readCounter('dk-pageviews',location.pathname || '/');
+      readCounter('dk-unique',browserEvent);
+    };
+    refresh();
+    setTimeout(refresh, 16000);
+  })();
   </script>
 </body>
 </html>

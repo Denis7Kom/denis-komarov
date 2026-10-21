@@ -1,0 +1,112 @@
+name: Apply GoatCounter integration
+
+on:
+  push:
+    branches:
+      - feat/goatcounter-public-counter
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  patch-html:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/goatcounter-public-counter
+
+      - name: Patch existing one-file site
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          f = Path("index.html")
+          html = f.read_text(encoding="utf-8")
+          if 'id="gc-stats-count"' in html:
+              print("Already patched")
+          else:
+              css = """
+    /* GoatCounter public site-visit counter */
+    .gc-stats{display:flex;justify-content:center;padding:14px 0 20px}
+    .gc-stats-card{display:inline-flex;align-items:center;gap:13px;max-width:100%;padding:12px 17px;border:1px solid rgba(255,184,77,.18);border-radius:18px;background:rgba(255,184,77,.045)}
+    .gc-stats-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:11px;background:rgba(255,179,71,.11);color:var(--accent-3);font-size:1.05rem}
+    .gc-stats-copy{display:grid;gap:2px}
+    .gc-stats-label{color:var(--text);font-size:.82rem;font-weight:760}
+    .gc-stats-note{color:var(--muted-2);font-size:.69rem}
+    .gc-stats-count{padding-left:19px;border-left:1px solid rgba(255,184,77,.16);color:var(--accent-3);font-family:var(--mono);font-size:1.17rem;font-weight:800;font-variant-numeric:tabular-nums;white-space:nowrap}
+    @media(max-width:480px){.gc-stats-card{gap:10px;padding:10px 12px}.gc-stats-count{padding-left:12px;font-size:1.04rem}.gc-stats-note{font-size:.64rem}}
+              """
+              footer = """
+              <div class="container gc-stats" aria-label="Site statistics">
+                <div class="gc-stats-card">
+                  <span class="gc-stats-icon" aria-hidden="true">◉</span>
+                  <div class="gc-stats-copy">
+                    <span class="gc-stats-label" id="gc-stats-label">Site visits</span>
+                    <span class="gc-stats-note" id="gc-stats-note">Since tracking began · updated periodically</span>
+                  </div>
+                  <span class="gc-stats-count" id="gc-stats-count" role="status" aria-live="polite">—</span>
+                </div>
+              </div>
+              """
+              js = """
+              /* Visits are deduplicated sessions, not lifetime-unique people. */
+              (() => {
+                const counter=document.querySelector('#gc-stats-count');
+                const label=document.querySelector('#gc-stats-label');
+                const note=document.querySelector('#gc-stats-note');
+                const copy={
+                  en:{label:'Site visits',note:'Since tracking began · updated periodically',error:'Enable public visitor counts in GoatCounter settings'},
+                  ru:{label:'Посещения сайта',note:'С момента подключения · обновляется периодически',error:'Разреши публичный счётчик в настройках GoatCounter'},
+                  it:{label:'Visite del sito',note:'Dall’attivazione · aggiornamento periodico',error:'Abilita il contatore pubblico nelle impostazioni GoatCounter'},
+                  de:{label:'Website-Besuche',note:'Seit der Aktivierung · regelmäßig aktualisiert',error:'Öffentlichen Besucherzähler in GoatCounter aktivieren'}
+                };
+                let unavailable=false;
+                const sync=()=>{
+                  const words=copy[document.documentElement.lang]||copy.en;
+                  label.textContent=words.label;
+                  note.textContent=words.note;
+                  counter.title=unavailable?words.error:'';
+                  counter.setAttribute('aria-label',words.label);
+                };
+                document.querySelectorAll('.lang-btn').forEach(button=>button.addEventListener('click',()=>requestAnimationFrame(sync)));
+                sync();
+                fetch('https://denis-komarov.goatcounter.com/counter/TOTAL.json',{mode:'cors'})
+                  .then(r=>{if(!r.ok)throw Error('Counter unavailable');return r.json()})
+                  .then(data=>{
+                    const digits=String(data.count??'').replace(/[^0-9]/g,'');
+                    if(!/^[0-9]+$/.test(digits))throw Error('Invalid count');
+                    const count=Number(digits);
+                    if(!Number.isSafeInteger(count))throw Error('Count out of range');
+                    counter.textContent=count.toLocaleString(document.documentElement.lang||'en');
+                  })
+                  .catch(()=>{unavailable=true;counter.textContent='—';sync()});
+              })();
+              """
+              assert html.count("</style>")==1, "Unexpected CSS structure"
+              assert html.count('<footer class="site-footer">')==1, "Unexpected footer"
+              assert html.count("</body>")==1, "Unexpected body"
+              assert "  </script>" in html, "No inline script"
+              html=html.replace("</style>",css+"\n  </style>",1)
+              html=html.replace('<footer class="site-footer">','<footer class="site-footer">'+footer,1)
+              pos=html.rfind("  </script>")
+              html=html[:pos]+js+"\n"+html[pos:]
+              html=html.replace("</body>",'  <script data-goatcounter="https://denis-komarov.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>\n</body>',1)
+              assert html.count('id="gc-stats-count"')==1
+              f.write_text(html,encoding="utf-8")
+          PY
+
+      - name: Remove temporary workflow files
+        run: rm -f .github/workflows/goatcounter-hotfix.yml .github/analytics-trigger.txt
+
+      - name: Commit website update to PR branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A index.html .github/workflows/goatcounter-hotfix.yml .github/analytics-trigger.txt
+          git commit -m "Add GoatCounter analytics and public visits badge" || exit 0
+          git push origin feat/goatcounter-public-counter

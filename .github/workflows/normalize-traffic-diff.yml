@@ -1,0 +1,36 @@
+name: Reduce traffic widget patch to only intended changes
+
+on:
+  pull_request:
+    types: [synchronize]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  normalize:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feature/goatcounter-public-stats'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/goatcounter-public-stats
+          persist-credentials: true
+      - name: Rebuild HTML from original bytes
+        run: |
+          git fetch --depth=1 origin main
+          git show origin/main:index.html > index.html
+          python3 .github/apply-traffic-stats.py
+      - name: Remove temporary patch files
+        run: |
+          rm -f .github/apply-traffic-stats.py
+          rm -f .github/workflows/normalize-traffic-diff.yml
+      - name: Commit minimal diff
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/apply-traffic-stats.py .github/workflows/normalize-traffic-diff.yml
+          git diff --cached --quiet || git commit -m "Preserve original HTML newline formatting"
+          git push origin HEAD:feature/goatcounter-public-stats

@@ -16,6 +16,7 @@ jobs:
           persist-credentials: true
       - name: Patch HTML without changing existing assets
         run: |
+          python3 <<'PY'
           from pathlib import Path
           
           p=Path("index.html")
@@ -104,6 +105,7 @@ jobs:
           src=src.replace("\r\n","\n").replace("\n",eol) if eol=="\r\n" else src
           p.write_bytes(src.encode("utf-8"))
           print("Inserted GoatCounter; file bytes:",p.stat().st_size)
+          PY
           
       - name: Remove temporary workflow and commit only the updated HTML
         run: |

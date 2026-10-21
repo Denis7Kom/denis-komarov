@@ -101,7 +101,7 @@ jobs:
               if src.count(old)!=1:
                   raise SystemExit("Unexpected HTML anchor: "+old)
               src=src.replace(old,new,1)
-          src=src.replace("\n",eol) if eol=="\r\n" else src
+          src=src.replace("\r\n","\n").replace("\n",eol) if eol=="\r\n" else src
           p.write_bytes(src.encode("utf-8"))
           print("Inserted GoatCounter; file bytes:",p.stat().st_size)
           

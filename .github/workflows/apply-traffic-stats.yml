@@ -1,0 +1,33 @@
+name: Apply GoatCounter patch to HTML
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: read
+
+jobs:
+  patch:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.head.ref == 'feature/goatcounter-public-stats'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feature/goatcounter-public-stats
+          persist-credentials: true
+      - name: Apply isolated HTML patch
+        run: python3 .github/apply-traffic-stats.py
+      - name: Remove temporary patch tools
+        run: |
+          rm -f .github/apply-traffic-stats.py
+          rm -f .github/workflows/apply-traffic-stats.yml
+      - name: Commit HTML-only update to feature branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html .github/apply-traffic-stats.py .github/workflows/apply-traffic-stats.yml
+          git diff --cached --quiet || git commit -m "Integrate public pageviews and session visits"
+          git push origin HEAD:feature/goatcounter-public-stats

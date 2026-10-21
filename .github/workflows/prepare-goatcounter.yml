@@ -1,0 +1,115 @@
+name: Prepare GoatCounter HTML integration
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  patch-html:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          persist-credentials: true
+      - name: Patch HTML without changing existing assets
+        run: |
+          from pathlib import Path
+          
+          p=Path("index.html")
+          data=p.read_bytes()
+          src=data.decode("utf-8")
+          if 'data-goatcounter="https://denis-komarov.goatcounter.com/count"' in src:
+              raise SystemExit("Already installed, skipping")
+          eol="\r\n" if "\r\n" in src else "\n"
+          
+          style="""
+              /* GoatCounter footer counters */
+              .traffic-overview{display:flex;align-items:center;justify-content:space-between;gap:22px;margin-bottom:26px;padding:18px 22px;border:1px solid rgba(255,184,77,.18);border-radius:22px;background:linear-gradient(105deg,rgba(255,184,77,.09),rgba(255,255,255,.025) 85%)}
+              .traffic-heading{display:flex;align-items:center;gap:12px}
+              .traffic-icon{width:43px;height:43px;display:grid;place-items:center;flex:none;border-radius:14px;background:rgba(255,184,77,.12);color:var(--accent)}
+              .traffic-label{font-size:.91rem;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+              .traffic-caption{font-size:.73rem;line-height:1.45;color:var(--muted-2);margin-top:4px}
+              .traffic-metrics{display:grid;grid-template-columns:repeat(2,minmax(95px,1fr));gap:22px}
+              .traffic-metric{display:grid;gap:4px}
+              .traffic-value{font-variant-numeric:tabular-nums;color:var(--accent-3);font-weight:850;font-size:clamp(1.3rem,2vw,1.65rem);line-height:1.1}
+              .traffic-period{color:var(--muted);font-size:.75rem;white-space:nowrap}
+              @media(max-width:640px){.traffic-overview{align-items:stretch;flex-direction:column;padding:18px;gap:18px}.traffic-metrics{gap:10px}}
+          """
+          markup="""
+              <div class="container">
+                <div class="traffic-overview">
+                  <div class="traffic-heading">
+                    <span class="traffic-icon" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M2 12s3.6-6 10-6 10 6 10 6-3.6 6-10 6-10-6-10-6Z"/><circle cx="12" cy="12" r="3"/></svg></span>
+                    <div><div class="traffic-label">Site visits</div><div class="traffic-caption">GoatCounter · figures may be delayed</div></div>
+                  </div>
+                  <div class="traffic-metrics">
+                    <div class="traffic-metric"><strong class="traffic-value" data-traffic="total" aria-live="polite">—</strong><span class="traffic-period">All time</span></div>
+                    <div class="traffic-metric"><strong class="traffic-value" data-traffic="month" aria-live="polite">—</strong><span class="traffic-period">Last month</span></div>
+                  </div>
+                </div>
+              </div>
+          """
+          scripts="""
+            <script data-goatcounter="https://denis-komarov.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+            <script>
+              (() => {
+                const base = 'https://denis-komarov.goatcounter.com/counter/TOTAL.json';
+                const results = {total:null,month:null};
+                function show() {
+                  const locale = {ru:'ru-RU',it:'it-IT',de:'de-DE',en:'en-US'}[document.documentElement.lang] || 'en-US';
+                  for (const metric of ['total','month']) {
+                    const el = document.querySelector('[data-traffic="'+metric+'"]');
+                    if (el) el.textContent = results[metric] === null ? '—' : new Intl.NumberFormat(locale).format(results[metric]);
+                  }
+                }
+                async function get(url) {
+                  const response = await fetch(url,{mode:'cors',cache:'no-store'});
+                  if (!response.ok) throw new Error('Public counter unavailable');
+                  const obj = await response.json();
+                  const digits = String(obj.count ?? '').replace(/[^0-9]/g,'');
+                  if (!digits) throw new Error('Empty counter response');
+                  return Number(digits);
+                }
+                Promise.allSettled([get(base),get(base+'?start=month')]).then(rows=>{
+                  if(rows[0].status==='fulfilled') results.total=rows[0].value;
+                  if(rows[1].status==='fulfilled') results.month=rows[1].value;
+                  show();
+                });
+                document.querySelectorAll('.lang-btn').forEach(btn=>btn.addEventListener('click',()=>requestAnimationFrame(show)));
+              })();
+            </script>
+          """
+          copies={
+           "ru":{"Site visits":"Посещения сайта","GoatCounter · figures may be delayed":"GoatCounter · данные обновляются с задержкой","All time":"За всё время","Last month":"За месяц"},
+           "it":{"Site visits":"Visite al sito","GoatCounter · figures may be delayed":"GoatCounter · aggiornamento con ritardo","All time":"Da sempre","Last month":"Ultimo mese"},
+           "de":{"Site visits":"Website-Besuche","GoatCounter · figures may be delayed":"GoatCounter · verzögert aktualisiert","All time":"Insgesamt","Last month":"Letzter Monat"},
+          }
+          import json
+          for lang, mapping in copies.items():
+              anchor='      "'+lang+'": {'
+              i=src.index(anchor,src.index('const translations = {'))
+              additions="".join(eol+"            "+json.dumps(a,ensure_ascii=False)+": "+json.dumps(b,ensure_ascii=False)+"," for a,b in mapping.items())
+              src=src[:i+len(anchor)]+additions+src[i+len(anchor):]
+          for old,new in [
+              ("</style>",style+"</style>"),
+              ('<footer class="site-footer">','<footer class="site-footer">'+markup),
+              ("</body>",scripts+"</body>")
+          ]:
+              if src.count(old)!=1:
+                  raise SystemExit("Unexpected HTML anchor: "+old)
+              src=src.replace(old,new,1)
+          src=src.replace("\n",eol) if eol=="\r\n" else src
+          p.write_bytes(src.encode("utf-8"))
+          print("Inserted GoatCounter; file bytes:",p.stat().st_size)
+          
+      - name: Remove temporary workflow and commit only the updated HTML
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -f .github/workflows/prepare-goatcounter.yml
+          git add index.html
+          git commit -m "Integrate GoatCounter analytics into HTML"
+          git push origin "HEAD:${{ github.head_ref }}"

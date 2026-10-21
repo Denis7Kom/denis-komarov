@@ -32,9 +32,9 @@ jobs:
               raise SystemExit("Unexpected document structure.")
 
           css = """
-            /* goatcounter-portfolio-widget-2026 */
+            /* goatcounter-portfolio-widget-2026: lightweight analytics display */
             .analytics-strip--goat {
-              display:flex;align-items:center;gap:16px;margin:0 0 28px;
+              display:flex;align-items:center;gap:20px;margin:0 0 28px;
               padding:18px 22px;border:1px solid rgba(255,184,77,.20);
               border-radius:20px;background:linear-gradient(115deg,rgba(255,179,71,.10),rgba(255,255,255,.035));
               color:var(--text);
@@ -44,72 +44,98 @@ jobs:
               border-radius:13px;background:rgba(255,179,71,.12);color:var(--accent);
             }
             .analytics-strip--goat .analytics-eye svg{width:22px;height:22px;}
-            .analytics-strip--goat .analytics-labels{display:grid;gap:4px;}
+            .analytics-strip--goat .analytics-labels{display:grid;gap:4px;min-width:0;}
             .analytics-strip--goat .analytics-title{font-size:.94rem;font-weight:760;}
             .analytics-strip--goat .analytics-detail{color:var(--muted);font-size:.79rem;}
+            .analytics-strip--goat .analytics-metrics {margin-left:auto;display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+            .analytics-strip--goat .analytics-metric{display:grid;gap:4px;justify-items:end;min-width:100px;}
+            .analytics-strip--goat .analytics-metric-label{font-size:.76rem;color:var(--muted);white-space:nowrap;}
             .analytics-strip--goat .analytics-number{
-              margin-left:auto;color:var(--accent-3);font-variant-numeric:tabular-nums;
+              color:var(--accent-3);font-variant-numeric:tabular-nums;
               font-size:clamp(1.45rem,3vw,2.05rem);font-weight:850;letter-spacing:-.045em;white-space:nowrap;
             }
-            @media(max-width:520px){
-              .analytics-strip--goat{padding:15px;gap:11px;border-radius:16px;}
+            @media(max-width:680px){
+              .analytics-strip--goat{padding:15px;gap:11px;flex-wrap:wrap;border-radius:16px;}
               .analytics-strip--goat .analytics-eye{flex-basis:36px;width:36px;height:36px;}
+              .analytics-strip--goat .analytics-labels {flex:1;}
+              .analytics-strip--goat .analytics-metrics{width:100%;gap:12px;margin:8px 0 0;}
+              .analytics-strip--goat .analytics-metric{justify-items:start;min-width:0;}
               .analytics-strip--goat .analytics-title{font-size:.86rem;}
               .analytics-strip--goat .analytics-detail{font-size:.70rem;}
             }
           """
           panel = """
               <div class="container">
-                <div class="analytics-strip--goat" aria-label="Site visit counter">
+                <div class="analytics-strip--goat" aria-label="Site traffic statistics">
                   <div class="analytics-eye" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.4-6.5 10-6.5S22 12 22 12s-3.4 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
                   </div>
                   <div class="analytics-labels">
-                    <span class="analytics-title">Recorded visits</span>
-                    <span class="analytics-detail">Since tracking started</span>
+                    <span class="analytics-title">Site traffic</span>
+                    <span class="analytics-detail">Unique visits are session estimates, not people</span>
                   </div>
-                  <strong class="analytics-number" id="site-visit-count" aria-live="polite">—</strong>
+                  <div class="analytics-metrics">
+                    <div class="analytics-metric">
+                      <span class="analytics-metric-label">Page views</span>
+                      <strong class="analytics-number" id="site-views-count" aria-live="polite">—</strong>
+                    </div>
+                    <div class="analytics-metric">
+                      <span class="analytics-metric-label">Unique visits</span>
+                      <strong class="analytics-number" id="site-unique-count" aria-live="polite">—</strong>
+                    </div>
+                  </div>
                 </div>
               </div>
           """
           analytics = """
-            <!-- GoatCounter tracking; do not expose account tokens in public HTML. -->
+            <!-- GoatCounter page analytics; browser-only, no API keys. -->
             <script data-goatcounter="https://denis-komarov.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
             <script>
               (() => {
-                const counter = document.getElementById('site-visit-count');
-                if (!counter) return;
-                fetch('https://denis-komarov.goatcounter.com/counter/TOTAL.json', { cache: 'no-store' })
-                  .then((res) => { if (!res.ok) throw new Error('Unavailable'); return res.json(); })
-                  .then((data) => {
-                    const value = typeof data.count === 'string' ? data.count.trim() : '';
-                    if (!/^[0-9 ,.]+$/.test(value)) throw new Error('Invalid value');
-                    counter.textContent = value;
-                  })
-                  .catch(() => {
-                    counter.textContent = '—';
-                    counter.title = 'Enable public visitor counts in GoatCounter settings';
-                  });
+                // Measure every page load and session-deduplicated visits separately.
+                // GoatCounter's session window is ~8 hours; no persistent browser ID.
+                let checks = 0;
+                const waitForGoatCounter = setInterval(() => {
+                  if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+                    clearInterval(waitForGoatCounter);
+                    window.goatcounter.count({ path: 'portfolio-pageviews', title: 'Portfolio page views', event: true, no_session: true });
+                    window.goatcounter.count({ path: 'portfolio-unique-visits', title: 'Portfolio unique visits (sessions)', event: true, no_session: false });
+                  } else if (++checks >= 100) {
+                    clearInterval(waitForGoatCounter);
+                  }
+                }, 100);
+                const endpoint = 'https://denis-komarov.goatcounter.com/counter/';
+                [['site-views-count', 'portfolio-pageviews'], ['site-unique-count', 'portfolio-unique-visits']].forEach(([id, path]) => {
+                  const node = document.getElementById(id);
+                  if (!node) return;
+                  fetch(endpoint + path + '.json', { cache: 'no-store' })
+                    .then((res) => { if (!res.ok) throw new Error('Public counter unavailable'); return res.json(); })
+                    .then((data) => {
+                      const value = typeof data.count === 'string' ? data.count.trim() : '';
+                      if (!/^[0-9 ,.]+$/.test(value)) throw new Error('Invalid value');
+                      node.textContent = value;
+                    })
+                    .catch(() => { node.textContent = '—'; node.title = 'Enable public visitor counts in GoatCounter settings'; });
+                });
               })();
             </script>
           """
-
           raw = raw.replace("</style>", css + "\n  </style>", 1)
           raw = raw.replace('<footer class="site-footer">', '<footer class="site-footer">' + panel, 1)
           raw = raw.replace("</body>", analytics + "\n</body>", 1)
 
           # Keep the existing automatic language switcher in control.
           anchor = "    Object.keys(translationOverrides).forEach((lang) => {"
-          extra = """    Object.assign(translations.ru, { 'Recorded visits': 'Посещения сайта', 'Since tracking started': 'С момента подключения' });
-              Object.assign(translations.it, { 'Recorded visits': 'Visite registrate', 'Since tracking started': 'Dall’attivazione del contatore' });
-              Object.assign(translations.de, { 'Recorded visits': 'Erfasste Besuche', 'Since tracking started': 'Seit Aktivierung des Zählers' });
+          extra = """    Object.assign(translations.ru, { 'Site traffic': 'Статистика сайта', 'Unique visits are session estimates, not people': 'Уникальные визиты — оценка по сеансам, не по людям', 'Page views': 'Просмотры', 'Unique visits': 'Уникальные визиты' });
+              Object.assign(translations.it, { 'Site traffic': 'Statistiche del sito', 'Unique visits are session estimates, not people': 'Le visite uniche sono stime delle sessioni, non delle persone', 'Page views': 'Visualizzazioni', 'Unique visits': 'Visite uniche' });
+              Object.assign(translations.de, { 'Site traffic': 'Website-Statistik', 'Unique visits are session estimates, not people': 'Eindeutige Besuche werden nach Sitzungen geschätzt, nicht nach Personen', 'Page views': 'Seitenaufrufe', 'Unique visits': 'Eindeutige Besuche' });
 
           """
           if anchor not in raw: raise SystemExit("Could not find translation anchor")
           raw = raw.replace(anchor, extra + anchor, 1)
           text_anchor = "          if (!parent) return NodeFilter.FILTER_REJECT;"
           if text_anchor not in raw: raise SystemExit("Could not find text walker")
-          raw = raw.replace(text_anchor, text_anchor + "\n          if (parent.closest('#site-visit-count')) return NodeFilter.FILTER_REJECT;", 1)
+          raw = raw.replace(text_anchor, text_anchor + "\n          if (parent.closest('#site-views-count, #site-unique-count')) return NodeFilter.FILTER_REJECT;", 1)
 
           if not all(i in raw for i in ("goatcounter-portfolio-widget-2026", "site-visit-count", "data-goatcounter")):
               raise SystemExit("Patch verification failed")

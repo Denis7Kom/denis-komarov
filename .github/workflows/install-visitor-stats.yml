@@ -16,6 +16,7 @@ jobs:
           ref: feat/visitor-stats
       - name: Add counters to existing HTML
         run: |
+          python3 <<'PY'
           from pathlib import Path
           p = Path("index.html")
           s = p.read_bytes().decode("utf-8")
@@ -33,6 +34,7 @@ jobs:
               s = s.replace("</body>", script.replace("\n","\r\n") + "</body>", 1)
               p.write_bytes(s.encode("utf-8"))
               print("Patched index.html successfully")
+          PY
           
       - name: Remove temporary workflow and commit only HTML
         run: |

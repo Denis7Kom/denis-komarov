@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.3 — 2026-11-14
+
+- fix(ui): align version with the end of the contact invitation (a630054)
+
 ## 2.0.2 — 2026-11-14
 
 - fix(ui): place the version underneath the contact invitation (77566ff)

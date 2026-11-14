@@ -44,6 +44,7 @@ major, minor, patch, stage = re.fullmatch(
     r"(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(-alpha|-beta)?", current
 ).groups()
 tag = f"v{current}"
+release_base = tag
 if not git("tag", "--list", tag):
     baseline = git("log", "--first-parent", "--diff-filter=A", "-1", "--format=%H", "--", "VERSION")
     release_commit = git("log", "--first-parent", "-1", "--format=%H", "--", "VERSION")
@@ -51,11 +52,13 @@ if not git("tag", "--list", tag):
         baseline = release_commit
     if not baseline or git("show", f"{baseline}:VERSION") != current:
         raise ValueError(f"Cannot identify baseline for {tag}")
-    git("tag", tag, baseline)
+    release_base = baseline
+    tag_target = git("rev-parse", "origin/main")
+    git("tag", tag, tag_target)
 
 bump = 0
 changes = []
-for commit in git("rev-list", "--reverse", f"{tag}..HEAD").splitlines():
+for commit in git("rev-list", "--reverse", f"{release_base}..HEAD").splitlines():
     message = git("show", "-s", "--format=%B", commit)
     subject = message.splitlines()[0] if message else ""
     header = re.match(r"^\w+(?:\([^()\n]+\))?(!)?: ", subject)

@@ -12,6 +12,8 @@ Object.assign(badge.style, {
   fontVariantNumeric: "tabular-nums",
   color: "inherit",
   opacity: ".76",
+  width: "max-content",
+  position: "relative",
 });
 
 const normalize = (value) => value.trim().replace(/[’‘]/g, "'").replace(/\s+/g, " ");
@@ -32,7 +34,6 @@ function placeVersion() {
   const style = getComputedStyle(invitation);
   const parentDisplay = getComputedStyle(invitation.parentElement).display;
   badge.style.color = style.color;
-  badge.style.textAlign = style.textAlign;
   const rowLayout = parentDisplay.includes("grid") ||
     (parentDisplay.includes("flex") && getComputedStyle(invitation.parentElement).flexDirection.startsWith("row"));
   if (rowLayout) {
@@ -43,6 +44,25 @@ function placeVersion() {
     invitation.after(badge);
   }
   observer.disconnect();
+
+  function alignVersion() {
+    const text = document.createRange();
+    text.selectNodeContents(invitation);
+    const lines = [...text.getClientRects()].filter((rect) => rect.width > 0);
+    const lastLine = lines.at(-1);
+    if (!lastLine) return;
+
+    badge.style.left = "0px";
+    const right = badge.getBoundingClientRect().right;
+    badge.style.left = `${lastLine.right - right}px`;
+  }
+
+  const resizeObserver = new ResizeObserver(alignVersion);
+  resizeObserver.observe(invitation);
+  resizeObserver.observe(invitation.parentElement);
+  window.addEventListener("resize", alignVersion);
+  document.fonts?.addEventListener("loadingdone", alignVersion);
+  alignVersion();
 }
 
 const observer = new MutationObserver(placeVersion);

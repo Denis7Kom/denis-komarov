@@ -16,6 +16,15 @@ def replace_once(path, pattern, replacement):
     return updated.encode("utf-8")
 
 
+def publish_proposal(version):
+    branch = f"versioning/{version}"
+    if git("ls-remote", "--heads", "origin", branch):
+        print(f"Version branch already exists: {branch}")
+        return
+    git("push", "origin", f"HEAD:refs/heads/{branch}")
+    print(f"Version branch ready for pull request: {branch}")
+
+
 index = Path("index.html")
 html = index.read_bytes()
 marker = b'<script type="module" src="./version-badge.js"></script>'
@@ -37,8 +46,9 @@ major, minor, patch, stage = re.fullmatch(
 tag = f"v{current}"
 if not git("tag", "--list", tag):
     baseline = git("log", "--first-parent", "--diff-filter=A", "-1", "--format=%H", "--", "VERSION")
-    if git("rev-parse", "HEAD") != before:
-        baseline = git("rev-parse", "HEAD")
+    release_commit = git("log", "--first-parent", "-1", "--format=%H", "--", "VERSION")
+    if release_commit:
+        baseline = release_commit
     if not baseline or git("show", f"{baseline}:VERSION") != current:
         raise ValueError(f"Cannot identify baseline for {tag}")
     git("tag", tag, baseline)
@@ -83,7 +93,10 @@ if bump:
     git("add", "VERSION", "CHANGELOG.md", "version-badge.js")
     git("commit", "-m", f"chore(release): {version}")
     git("tag", next_tag)
-    git("push", "--atomic", "origin", "HEAD:refs/heads/main",
-        f"refs/tags/{tag}", f"refs/tags/{next_tag}")
+    git("push", "origin", f"refs/tags/{tag}")
+    publish_proposal(version)
 else:
-    git("push", "--atomic", "origin", "HEAD:refs/heads/main", f"refs/tags/{tag}")
+    if git("rev-parse", "HEAD") != before:
+        publish_proposal(current)
+    else:
+        git("push", "origin", f"refs/tags/{tag}")

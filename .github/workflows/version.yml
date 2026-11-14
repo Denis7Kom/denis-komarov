@@ -10,7 +10,6 @@ concurrency:
 
 permissions:
   contents: write
-  pages: write
 
 jobs:
   release:
@@ -22,15 +21,7 @@ jobs:
           ref: main
           fetch-depth: 0
       - name: Update version and tag
-        id: version
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          before=$(git rev-parse HEAD)
           python3 scripts/release.py
-          if [ "$before" != "$(git rev-parse HEAD)" ]; then echo 'released=true' >> "$GITHUB_OUTPUT"; fi
-      - name: Request Pages build for the release commit
-        env:
-          GH_TOKEN: ${{ github.token }}
-        if: steps.version.outputs.released == 'true' || github.event_name == 'workflow_dispatch'
-        run: gh api --method POST "repos/$GITHUB_REPOSITORY/pages/builds"

@@ -1,5 +1,25 @@
 const projectVersion = "2.0.0";
 const badge = document.createElement("span");
+badge.className = "project-version";
 badge.textContent = "ver. " + projectVersion;
-badge.style.cssText = "position:fixed;right:max(12px,env(safe-area-inset-right));bottom:max(12px,env(safe-area-inset-bottom));z-index:100;padding:4px 9px;border:1px solid #ffffff40;border-radius:999px;background:#17191e;color:#e6e9ee;font:11px ui-monospace,monospace;pointer-events:none";
+Object.assign(badge.style, {
+  position: "fixed",
+  right: "calc(12px + env(safe-area-inset-right, 0px))",
+  bottom: "calc(12px + env(safe-area-inset-bottom, 0px))",
+  zIndex: "100",
+  padding: "5px 10px",
+  border: "1px solid color-mix(in srgb, currentColor 20%, transparent)",
+  borderRadius: "999px",
+  background: "light-dark(rgba(255,255,255,.93), rgba(20,24,35,.94))",
+  color: "light-dark(#293552, #e6ebfa)",
+  fontFamily: "inherit",
+  fontSize: "11px",
+  fontWeight: "600",
+  lineHeight: "1.4",
+  fontVariantNumeric: "tabular-nums",
+  whiteSpace: "nowrap",
+  pointerEvents: "none",
+  colorScheme: getComputedStyle(document.documentElement).colorScheme === "normal" ? "light dark" : "inherit",
+  boxShadow: "0 2px 12px #0002",
+});
 document.body.append(badge);

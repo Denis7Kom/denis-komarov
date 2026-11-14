@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 from datetime import date
@@ -17,12 +18,18 @@ def replace_once(path, pattern, replacement):
 
 
 def publish_proposal(version):
-    branch = f"versioning/{version}"
+    source_revision = git("rev-parse", "--short=12", "origin/main")
+    branch = f"versioning/{version}-{source_revision}"
     if git("ls-remote", "--heads", "origin", branch):
         print(f"Version branch already exists: {branch}")
         return
     git("push", "origin", f"HEAD:refs/heads/{branch}")
     print(f"Version branch ready for pull request: {branch}")
+    summary = Path(os.environ["GITHUB_STEP_SUMMARY"]) if "GITHUB_STEP_SUMMARY" in os.environ else None
+    if summary:
+        repository = os.environ["GITHUB_REPOSITORY"]
+        with summary.open("a", encoding="utf-8") as output:
+            output.write(f"[Open release pull request](https://github.com/{repository}/compare/main...{branch}?expand=1)\n")
 
 
 index = Path("index.html")
@@ -95,7 +102,6 @@ if bump:
     )
     git("add", "VERSION", "CHANGELOG.md", "version-badge.js")
     git("commit", "-m", f"chore(release): {version}")
-    git("tag", next_tag)
     git("push", "origin", f"refs/tags/{tag}")
     publish_proposal(version)
 else:

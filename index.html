@@ -2912,6 +2912,16 @@
     @media (min-width:721px) and (max-width:1000px) {
       .site-header .nav-cta { display:none; }
     }
+
+    /* case studies, contact details, visually hidden link context */
+    .case-block-label { margin: 26px 0 0; }
+    .case-block-label + .grid-3 { margin-top: 16px; }
+    .case-card { min-height: auto; }
+    .contact-meta { margin-top: 12px; font-size: 0.92rem; color: var(--muted); }
+    .visually-hidden {
+      position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+      overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0;
+    }
   </style>
 </head>
 <body>
@@ -3207,10 +3217,8 @@
             <p>I work across web, programming, bots, and small software projects, with GitHub as my main code-sharing workflow.</p>
 
             <div class="stack-groups">
-              <div class="stack-group"><strong>Web</strong><span>HTML, CSS, JavaScript, PHP, JSP</span></div>
-              <div class="stack-group"><strong>Programming</strong><span>Python, Java, C, C++</span></div>
-              <div class="stack-group"><strong>Basics</strong><span>Kotlin, Ruby, Swift</span></div>
-              <div class="stack-group"><strong>Tools</strong><span>GitHub, databases, development workflow</span></div>
+              <div class="stack-group"><strong>Used in projects</strong><span>HTML, CSS, JavaScript, Python, Java, JSP, Node.js, Firebase, Cloudflare Workers, GitHub Actions, Microsoft Access, Firestore</span></div>
+              <div class="stack-group"><strong>Basics</strong><span>C, C++, PHP, Kotlin, Ruby, Swift</span></div>
             </div>
           </div>
 
@@ -3247,6 +3255,85 @@
             Real projects across web development, Python games, chatbots, automation, and information tools.
           </p>
         </div>
+
+        <div class="section-kicker case-block-label reveal">Engineering case studies</div>
+        <div class="grid-3 case-grid">
+          <article class="card project-card case-card reveal">
+            <div>
+              <div class="project-top">
+                <div>
+                  <h3>Aviation portfolio: denis-aviation</h3>
+                  <p><strong>Task:</strong> Show virtual-aviation experience interactively, with a request form that needs real accounts and access control.</p>
+                  <div class="project-role"><strong>Built:</strong> Six procedural 3D aircraft in a custom WebGL renderer, an interactive flight network, a flight log, a flight-control demo, a request page on Firebase Authentication and Cloud Firestore, and a separate Cloudflare Worker for Telegram notifications.</div>
+                  <div class="project-role"><strong>Proof:</strong> Automated Node.js tests (mesh validity, rendering, flight-game rules, request interface); Firestore rules tested on a local emulator in CI, including attempts to read another user’s request; a dependency audit of the request service; a manual QA checklist; 250+ commits.</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="project-tags">
+                <span class="mini-tag">JavaScript</span>
+                <span class="mini-tag">WebGL</span>
+                <span class="mini-tag">Firebase</span>
+                <span class="mini-tag">Cloudflare Workers</span>
+              </div>
+              <footer class="project-actions">
+                <a class="project-link" href="https://denis7kom.github.io/denis-aviation/" target="_blank" rel="noopener noreferrer">Live site ↗<span class="visually-hidden"> — denis-aviation</span></a>
+                <a class="project-link" href="https://github.com/Denis7Kom/denis-aviation" target="_blank" rel="noopener noreferrer">Code ↗<span class="visually-hidden"> — denis-aviation</span></a>
+              </footer>
+            </div>
+          </article>
+
+          <article class="card project-card case-card reveal">
+            <div>
+              <div class="project-top">
+                <div>
+                  <h3>SQUAD COMMAND (unofficial community project)</h3>
+                  <p><strong>Task:</strong> Show team structure, ranks and responsibilities for the game’s community and prototype a tactical match.</p>
+                  <div class="project-role"><strong>Built:</strong> A static PWA with three structure views, team-size and command-slot checks, local review and candidacy forms, bilingual printable rules and a local tactical battle simulator (against the computer or two players, with a JSON report).</div>
+                  <div class="project-role"><strong>Proof:</strong> Battle engine and interface tests run in GitHub Actions on every push to main; 11 numbered project documents (requirements, architecture, risks, backup and recovery). The README states that data is local, examples are fictional and browser checks are not security. A first Supabase migration (profiles, teams, row-level security) exists but is not yet connected to the site.</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="project-tags">
+                <span class="mini-tag">JavaScript</span>
+                <span class="mini-tag">PWA</span>
+                <span class="mini-tag">Supabase RLS</span>
+              </div>
+              <footer class="project-actions">
+                <a class="project-link" href="https://denis7kom.github.io/SQUAD/" target="_blank" rel="noopener noreferrer">Live site ↗<span class="visually-hidden"> — SQUAD</span></a>
+                <a class="project-link" href="https://github.com/Denis7Kom/SQUAD" target="_blank" rel="noopener noreferrer">Code ↗<span class="visually-hidden"> — SQUAD</span></a>
+              </footer>
+            </div>
+          </article>
+
+          <article class="card project-card case-card reveal">
+            <div>
+              <div class="project-top">
+                <div>
+                  <h3>BINARIO: guide to Italian trains</h3>
+                  <p><strong>Task:</strong> Publish a guide to Italian trains in three languages without a build step, straight from the repository.</p>
+                  <div class="project-role"><strong>Built:</strong> Three standalone pages (RU, EN, IT) with embedded data, SVG cards and an interactive Three.js station with train models; an SVG illustration replaces the 3D scene when WebGL is unavailable.</div>
+                  <div class="project-role"><strong>Proof:</strong> On every push and pull request, GitHub Actions compares each page with recorded fingerprints (markup, text, SVG, JavaScript syntax tree, normalized CSS) and runs a 3D-viewer lifecycle test; 60+ commits.</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="project-tags">
+                <span class="mini-tag">HTML/CSS</span>
+                <span class="mini-tag">JavaScript</span>
+                <span class="mini-tag">Three.js</span>
+                <span class="mini-tag">GitHub Actions</span>
+              </div>
+              <footer class="project-actions">
+                <a class="project-link" href="https://denis7kom.github.io/trains_it/" target="_blank" rel="noopener noreferrer">Live site ↗<span class="visually-hidden"> — trains_it</span></a>
+                <a class="project-link" href="https://github.com/Denis7Kom/trains_it" target="_blank" rel="noopener noreferrer">Code ↗<span class="visually-hidden"> — trains_it</span></a>
+              </footer>
+            </div>
+          </article>
+        </div>
+
+        <div class="section-kicker case-block-label reveal">More projects</div>
 
         <div class="grid-3">
           <article class="card project-card reveal">
@@ -3398,7 +3485,11 @@
           <article class="card lab-card reveal">
             <div class="icon">🛫</div>
             <h3>Infinite Flight</h3>
-            <p>I am an <strong>IFATC Specialist</strong> and act as a development advisor, suggesting improvements that could bring the simulator closer to MSFS2020-level realism and real-world procedures.</p>
+            <p><strong>IFATC Specialist</strong> (callsign DENISKOM). I control Tower and Ground and share realism suggestions with the simulator community.</p>
+            <div class="project-actions">
+              <a class="project-link" href="https://community.infiniteflight.com/u/deniskom/summary" target="_blank" rel="noopener noreferrer">Community profile ↗</a>
+              <a class="project-link" href="https://denis7kom.github.io/denis-aviation/" target="_blank" rel="noopener noreferrer">Aviation site ↗</a>
+            </div>
           </article>
 
           <article class="card lab-card reveal">
@@ -3463,6 +3554,7 @@
             <p>
               Send a message with the goal, references, and expected result. I am open to web projects, bots, scripts, and cybersecurity-oriented learning collaborations.
             </p>
+            <p class="contact-meta">I reply within 48 hours. Languages: Russian, Italian, English. Time zone: Italy (CET/CEST). If you have a deadline, please include it in your message.</p>
           </div>
 
           <div class="contact-panel" aria-label="Contact links">
@@ -3984,6 +4076,30 @@
 
     const translationOverrides = {
       "ru": {
+            "Engineering case studies": "Инженерные кейсы",
+            "More projects": "Другие проекты",
+            "Task:": "Задача:",
+            "Built:": "Сделано:",
+            "Proof:": "Чем подтверждено:",
+            "Live site ↗": "Сайт ↗",
+            "Code ↗": "Код ↗",
+            "Aviation portfolio: denis-aviation": "Авиационный сайт: denis-aviation",
+            "Show virtual-aviation experience interactively, with a request form that needs real accounts and access control.": "Наглядно показать опыт в виртуальной авиации и добавить форму заявок с настоящими аккаунтами и разграничением доступа.",
+            "Six procedural 3D aircraft in a custom WebGL renderer, an interactive flight network, a flight log, a flight-control demo, a request page on Firebase Authentication and Cloud Firestore, and a separate Cloudflare Worker for Telegram notifications.": "Шесть процедурных 3D-самолётов на собственном WebGL-рендерере, интерактивная сеть рейсов, журнал полётов, демо управления, страница заявок на Firebase Authentication и Cloud Firestore и отдельный Cloudflare Worker для уведомлений в Telegram.",
+            "Automated Node.js tests (mesh validity, rendering, flight-game rules, request interface); Firestore rules tested on a local emulator in CI, including attempts to read another user’s request; a dependency audit of the request service; a manual QA checklist; 250+ commits.": "Автотесты на Node.js (корректность мешей, отрисовка, правила игры, интерфейс заявок); правила Firestore проверяются на локальном эмуляторе в CI, включая попытки прочитать чужую заявку; аудит зависимостей сервиса заявок; ручной QA-чеклист; более 250 коммитов.",
+            "SQUAD COMMAND (unofficial community project)": "SQUAD COMMAND (неофициальный проект сообщества)",
+            "Show team structure, ranks and responsibilities for the game’s community and prototype a tactical match.": "Наглядно показать структуру команд, звания и ответственность для сообщества игры и сделать прототип тактического матча.",
+            "A static PWA with three structure views, team-size and command-slot checks, local review and candidacy forms, bilingual printable rules and a local tactical battle simulator (against the computer or two players, with a JSON report).": "Статический PWA с тремя видами структуры, проверками размера команды и командных мест, локальными формами отзывов и кандидатур, двуязычными правилами для печати и локальным тактическим симулятором боя (против компьютера или вдвоём, с JSON-отчётом).",
+            "Battle engine and interface tests run in GitHub Actions on every push to main; 11 numbered project documents (requirements, architecture, risks, backup and recovery). The README states that data is local, examples are fictional and browser checks are not security. A first Supabase migration (profiles, teams, row-level security) exists but is not yet connected to the site.": "Тесты боевого движка и интерфейса запускаются в GitHub Actions при каждом push в main; 11 нумерованных документов проекта (требования, архитектура, риски, резервное копирование и восстановление). В README прямо сказано, что данные локальные, примеры вымышленные, а проверки в браузере не защита. Первая миграция Supabase (профили, команды, row-level security) написана, но к сайту пока не подключена.",
+            "BINARIO: guide to Italian trains": "BINARIO: гид по поездам Италии",
+            "Publish a guide to Italian trains in three languages without a build step, straight from the repository.": "Опубликовать гид по поездам Италии на трёх языках без этапа сборки, прямо из репозитория.",
+            "Three standalone pages (RU, EN, IT) with embedded data, SVG cards and an interactive Three.js station with train models; an SVG illustration replaces the 3D scene when WebGL is unavailable.": "Три самостоятельные страницы (RU, EN, IT) со встроенными данными, SVG-карточками и интерактивной станцией на Three.js с моделями поездов; без WebGL вместо 3D-сцены показывается SVG-иллюстрация.",
+            "On every push and pull request, GitHub Actions compares each page with recorded fingerprints (markup, text, SVG, JavaScript syntax tree, normalized CSS) and runs a 3D-viewer lifecycle test; 60+ commits.": "При каждом push и pull request GitHub Actions сверяет страницы с записанными отпечатками (разметка, текст, SVG, синтаксическое дерево JavaScript, нормализованный CSS) и запускает тест жизненного цикла 3D-просмотрщика; более 60 коммитов.",
+            "Used in projects": "Использую в проектах",
+            "Community profile ↗": "Профиль сообщества ↗",
+            "Aviation site ↗": "Авиасайт ↗",
+            "(callsign DENISKOM). I control Tower and Ground and share realism suggestions with the simulator community.": "(позывной DENISKOM). Работаю на позициях Tower и Ground и предлагаю улучшения реализма сообществу симулятора.",
+            "I reply within 48 hours. Languages: Russian, Italian, English. Time zone: Italy (CET/CEST). If you have a deadline, please include it in your message.": "Отвечаю в течение 48 часов. Языки: русский, итальянский, английский. Часовой пояс: Италия (CET/CEST). Если есть срок, укажи его в сообщении.",
             "Build": "Что создаю",
             "Work": "Проекты",
             "Build with me →": "Связаться →",
@@ -4099,6 +4215,30 @@
             "→ shipping clean, responsive experiences": "→ создаю чистый адаптивный опыт"
       },
       "it": {
+            "Engineering case studies": "Casi di studio tecnici",
+            "More projects": "Altri progetti",
+            "Task:": "Obiettivo:",
+            "Built:": "Realizzato:",
+            "Proof:": "Verifiche:",
+            "Live site ↗": "Sito ↗",
+            "Code ↗": "Codice ↗",
+            "Aviation portfolio: denis-aviation": "Sito di aviazione: denis-aviation",
+            "Show virtual-aviation experience interactively, with a request form that needs real accounts and access control.": "Presentare in modo interattivo l’esperienza nell’aviazione virtuale, con un modulo di richiesta che richiede account reali e controllo degli accessi.",
+            "Six procedural 3D aircraft in a custom WebGL renderer, an interactive flight network, a flight log, a flight-control demo, a request page on Firebase Authentication and Cloud Firestore, and a separate Cloudflare Worker for Telegram notifications.": "Sei aerei 3D procedurali con un renderer WebGL personalizzato, una rete di voli interattiva, un registro dei voli, una demo di controllo del volo, una pagina di richieste su Firebase Authentication e Cloud Firestore e un Cloudflare Worker separato per le notifiche Telegram.",
+            "Automated Node.js tests (mesh validity, rendering, flight-game rules, request interface); Firestore rules tested on a local emulator in CI, including attempts to read another user’s request; a dependency audit of the request service; a manual QA checklist; 250+ commits.": "Test automatici in Node.js (validità delle mesh, rendering, regole del gioco di volo, interfaccia delle richieste); regole Firestore verificate su un emulatore locale in CI, inclusi i tentativi di leggere la richiesta di un altro utente; audit delle dipendenze del servizio richieste; checklist QA manuale; oltre 250 commit.",
+            "SQUAD COMMAND (unofficial community project)": "SQUAD COMMAND (progetto non ufficiale della community)",
+            "Show team structure, ranks and responsibilities for the game’s community and prototype a tactical match.": "Mostrare struttura delle squadre, gradi e responsabilità alla community del gioco e creare il prototipo di una partita tattica.",
+            "A static PWA with three structure views, team-size and command-slot checks, local review and candidacy forms, bilingual printable rules and a local tactical battle simulator (against the computer or two players, with a JSON report).": "Una PWA statica con tre viste della struttura, controlli sulla dimensione della squadra e sui posti di comando, moduli locali di valutazione e candidatura, regole bilingui stampabili e un simulatore tattico locale (contro il computer o in due, con report JSON).",
+            "Battle engine and interface tests run in GitHub Actions on every push to main; 11 numbered project documents (requirements, architecture, risks, backup and recovery). The README states that data is local, examples are fictional and browser checks are not security. A first Supabase migration (profiles, teams, row-level security) exists but is not yet connected to the site.": "I test del motore di battaglia e dell’interfaccia girano in GitHub Actions a ogni push su main; 11 documenti di progetto numerati (requisiti, architettura, rischi, backup e ripristino). Il README dichiara che i dati sono locali, gli esempi fittizi e i controlli nel browser non sono sicurezza. Una prima migrazione Supabase (profili, squadre, row-level security) esiste ma non è ancora collegata al sito.",
+            "BINARIO: guide to Italian trains": "BINARIO: guida ai treni italiani",
+            "Publish a guide to Italian trains in three languages without a build step, straight from the repository.": "Pubblicare una guida ai treni italiani in tre lingue, senza fase di build, direttamente dal repository.",
+            "Three standalone pages (RU, EN, IT) with embedded data, SVG cards and an interactive Three.js station with train models; an SVG illustration replaces the 3D scene when WebGL is unavailable.": "Tre pagine autonome (RU, EN, IT) con dati incorporati, schede SVG e una stazione interattiva in Three.js con modelli di treni; senza WebGL la scena 3D è sostituita da un’illustrazione SVG.",
+            "On every push and pull request, GitHub Actions compares each page with recorded fingerprints (markup, text, SVG, JavaScript syntax tree, normalized CSS) and runs a 3D-viewer lifecycle test; 60+ commits.": "A ogni push e pull request, GitHub Actions confronta ogni pagina con le impronte registrate (markup, testo, SVG, albero sintattico JavaScript, CSS normalizzato) ed esegue un test del ciclo di vita del visualizzatore 3D; oltre 60 commit.",
+            "Used in projects": "Uso nei progetti",
+            "Community profile ↗": "Profilo nella community ↗",
+            "Aviation site ↗": "Sito di aviazione ↗",
+            "(callsign DENISKOM). I control Tower and Ground and share realism suggestions with the simulator community.": "(nominativo DENISKOM). Opero nelle posizioni Tower e Ground e propongo miglioramenti di realismo alla community del simulatore.",
+            "I reply within 48 hours. Languages: Russian, Italian, English. Time zone: Italy (CET/CEST). If you have a deadline, please include it in your message.": "Rispondo entro 48 ore. Lingue: russo, italiano, inglese. Fuso orario: Italia (CET/CEST). Se hai una scadenza, indicala nel messaggio.",
             "Build": "Cosa creo",
             "Work": "Progetti",
             "Build with me →": "Collaboriamo →",
@@ -4212,6 +4352,30 @@
             "→ shipping clean, responsive experiences": "→ creo esperienze pulite e responsive"
       },
       "de": {
+            "Engineering case studies": "Technische Fallstudien",
+            "More projects": "Weitere Projekte",
+            "Task:": "Aufgabe:",
+            "Built:": "Umgesetzt:",
+            "Proof:": "Nachweis:",
+            "Live site ↗": "Website ↗",
+            "Code ↗": "Code ↗",
+            "Aviation portfolio: denis-aviation": "Luftfahrt-Website: denis-aviation",
+            "Show virtual-aviation experience interactively, with a request form that needs real accounts and access control.": "Erfahrung in der virtuellen Luftfahrt interaktiv zeigen, mit einem Anfrageformular, das echte Konten und Zugriffskontrolle braucht.",
+            "Six procedural 3D aircraft in a custom WebGL renderer, an interactive flight network, a flight log, a flight-control demo, a request page on Firebase Authentication and Cloud Firestore, and a separate Cloudflare Worker for Telegram notifications.": "Sechs prozedurale 3D-Flugzeuge in einem eigenen WebGL-Renderer, ein interaktives Flugnetz, ein Flugbuch, eine Flugsteuerungs-Demo, eine Anfrageseite mit Firebase Authentication und Cloud Firestore sowie ein separater Cloudflare Worker für Telegram-Benachrichtigungen.",
+            "Automated Node.js tests (mesh validity, rendering, flight-game rules, request interface); Firestore rules tested on a local emulator in CI, including attempts to read another user’s request; a dependency audit of the request service; a manual QA checklist; 250+ commits.": "Automatische Node.js-Tests (Mesh-Gültigkeit, Rendering, Spielregeln, Anfrage-Oberfläche); Firestore-Regeln auf einem lokalen Emulator in der CI getestet, einschließlich Versuchen, die Anfrage eines anderen Nutzers zu lesen; Abhängigkeitsprüfung des Anfrage-Dienstes; manuelle QA-Checkliste; über 250 Commits.",
+            "SQUAD COMMAND (unofficial community project)": "SQUAD COMMAND (inoffizielles Community-Projekt)",
+            "Show team structure, ranks and responsibilities for the game’s community and prototype a tactical match.": "Teamstruktur, Ränge und Verantwortlichkeiten für die Spiele-Community darstellen und ein taktisches Match als Prototyp entwickeln.",
+            "A static PWA with three structure views, team-size and command-slot checks, local review and candidacy forms, bilingual printable rules and a local tactical battle simulator (against the computer or two players, with a JSON report).": "Eine statische PWA mit drei Strukturansichten, Prüfungen von Teamgröße und Kommandoplätzen, lokalen Bewertungs- und Kandidaturformularen, zweisprachigen druckbaren Regeln und einem lokalen taktischen Gefechtssimulator (gegen den Computer oder zu zweit, mit JSON-Bericht).",
+            "Battle engine and interface tests run in GitHub Actions on every push to main; 11 numbered project documents (requirements, architecture, risks, backup and recovery). The README states that data is local, examples are fictional and browser checks are not security. A first Supabase migration (profiles, teams, row-level security) exists but is not yet connected to the site.": "Tests für Gefechtsengine und Oberfläche laufen in GitHub Actions bei jedem Push auf main; 11 nummerierte Projektdokumente (Anforderungen, Architektur, Risiken, Backup und Wiederherstellung). Das README hält fest, dass die Daten lokal sind, die Beispiele erfunden und Browser-Prüfungen keine Sicherheit. Eine erste Supabase-Migration (Profile, Teams, Row-Level-Security) existiert, ist aber noch nicht mit der Seite verbunden.",
+            "BINARIO: guide to Italian trains": "BINARIO: Guide zu italienischen Zügen",
+            "Publish a guide to Italian trains in three languages without a build step, straight from the repository.": "Einen Guide zu italienischen Zügen in drei Sprachen ohne Build-Schritt direkt aus dem Repository veröffentlichen.",
+            "Three standalone pages (RU, EN, IT) with embedded data, SVG cards and an interactive Three.js station with train models; an SVG illustration replaces the 3D scene when WebGL is unavailable.": "Drei eigenständige Seiten (RU, EN, IT) mit eingebetteten Daten, SVG-Karten und einem interaktiven Three.js-Bahnhof mit Zugmodellen; ohne WebGL ersetzt eine SVG-Illustration die 3D-Szene.",
+            "On every push and pull request, GitHub Actions compares each page with recorded fingerprints (markup, text, SVG, JavaScript syntax tree, normalized CSS) and runs a 3D-viewer lifecycle test; 60+ commits.": "Bei jedem Push und Pull Request vergleicht GitHub Actions jede Seite mit gespeicherten Fingerabdrücken (Markup, Text, SVG, JavaScript-Syntaxbaum, normalisiertes CSS) und führt einen Lebenszyklus-Test des 3D-Viewers aus; über 60 Commits.",
+            "Used in projects": "In Projekten im Einsatz",
+            "Community profile ↗": "Community-Profil ↗",
+            "Aviation site ↗": "Luftfahrt-Website ↗",
+            "(callsign DENISKOM). I control Tower and Ground and share realism suggestions with the simulator community.": "(Rufzeichen DENISKOM). Ich besetze die Positionen Tower und Ground und mache Realismus-Vorschläge an die Simulator-Community.",
+            "I reply within 48 hours. Languages: Russian, Italian, English. Time zone: Italy (CET/CEST). If you have a deadline, please include it in your message.": "Ich antworte innerhalb von 48 Stunden. Sprachen: Russisch, Italienisch, Englisch. Zeitzone: Italien (MEZ/MESZ). Falls es eine Frist gibt, nenne sie bitte in der Nachricht.",
             "Build": "Was ich baue",
             "Work": "Projekte",
             "Build with me →": "Kontakt aufnehmen →",

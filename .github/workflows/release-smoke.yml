@@ -55,6 +55,7 @@ jobs:
           printf '%s\n' '2.0.3' > VERSION
           git add VERSION
           git commit -qm baseline
+          git update-ref refs/remotes/origin/main HEAD
           bash -eo pipefail "$RUNNER_TEMP/release-step.sh"
           test ! -e "$RUNNER_TEMP/published"
           printf '%s\n' '9.0.1' > VERSION
@@ -64,6 +65,9 @@ jobs:
           git add .
           git commit -qm 'chore(release): 9.0.1'
           release_commit=$(git rev-parse HEAD)
+          bash -eo pipefail "$RUNNER_TEMP/release-step.sh"
+          test ! -e "$RUNNER_TEMP/published"
+          git update-ref refs/remotes/origin/main HEAD
           git tag 'v9.0.1' HEAD^
           if bash -eo pipefail "$RUNNER_TEMP/release-step.sh"; then exit 1; fi
           test ! -e "$RUNNER_TEMP/published"

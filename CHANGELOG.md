@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.4 — 2026-11-19
+
+- fix: publish only merged website versions (00a5f71)
+
 ## 2.0.3 — 2026-11-14
 
 - fix(ui): align version with the end of the contact invitation (a630054)
